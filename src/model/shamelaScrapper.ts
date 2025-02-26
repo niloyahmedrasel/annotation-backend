@@ -1,13 +1,14 @@
 import mongoose from "mongoose";
 import { ShamelaScrapper } from "./interface/shamelaScrapper";
 
+// Update the content field to be an array of strings
 export const shamelaScrapperSchema = new mongoose.Schema<ShamelaScrapper>({
-    title: {
+    url: {
         type: String,
         required: true
     },
     content: {
-        type: String,
+        type: [String], // Array of strings
         required: true
     },
 }, {

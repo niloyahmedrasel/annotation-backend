@@ -1,4 +1,6 @@
 import express from "express";
+import { spawn } from 'child_process';
+
 import cors from "cors";
 import connectDB from "./config/db";
 import userRouter from "./router/user";
@@ -7,7 +9,7 @@ import bookTypeRouter from "./router/bookType";
 import issueRouter from "./router/issue";
 import permissionRouter from "./router/permission";
 import docEditorRouter from "./router/docEditor";
-import shamelaScrapperRouter from "./router/shamelaScrapper";
+import scrapRouter from "./controller/shamelaScrapper"
 import path from "path";
 import bodyParser from "body-parser";
 
@@ -29,7 +31,7 @@ app.use("/api/bookType", bookTypeRouter);
 app.use("/api/issue", issueRouter);
 app.use("/api/permission", permissionRouter);
 app.use("/api/docEditor", docEditorRouter);
-app.use("/api/shamelaScrapper", shamelaScrapperRouter);
+app.use("/api", scrapRouter);
 
 app.get("/", (req, res) => {
     res.send("hello world!")

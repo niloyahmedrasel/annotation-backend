@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
-const MONGO_URI = 'mongodb://127.0.0.1:27017/annotation';
+const MONGO_URI = 'mongodb+srv://annotation:EPlwRya5HGW4gc8n@cluster0.58knn8l.mongodb.net/annotationDB?retryWrites=true&w=majority&appName=annotation';
+
 
 const connectDB = async () => {
   try {

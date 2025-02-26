@@ -1,73 +1,67 @@
-import { Request, Response } from 'express';
+import express, { Request, Response, Router } from 'express';
+import { spawn } from 'child_process';
+import path from 'path';
 import { ShamelaScrapperRepository } from '../repository/shamelaScrapper';
 
-// Use dynamic import for Shamela
 const shamelaScrapperRepository = new ShamelaScrapperRepository();
+const router: Router = express.Router();
 
-export class ShamelaScrapperController {
-  async scrapeBook(req: Request, res: Response): Promise<any> {
-    const { url } = req.body;
-
-    if (!url) {
-      return res.status(400).json({ message: 'URL is required' });
-    }
-
+router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
     try {
-      // Dynamically import Shamela package
-      const { downloadBook } = await import('shamela'); // Dynamically importing
+        const { url } = req.body;
 
-      // Step 1: Extract book ID from URL (if Shamela requires it)
-      const bookId = this.extractBookIdFromUrl(url);
-      if (!bookId) {
-        throw new Error('Invalid book URL');
-      }
+        if (!url) {
+            return res.status(400).json({ error: "No URL provided" });
+        }
 
-      // Convert bookId to number
-      const bookIdNumber = parseInt(bookId, 10);
-      if (isNaN(bookIdNumber)) {
-        throw new Error('Invalid book ID');
-      }
+        const pythonProcess = spawn('python3', [path.join(__dirname, '../scripts/scraper.py'), url]);
 
-      // Step 2: Define options (required by Shamela)
-      const options: any = {
-        outputFile: {
-          path: './downloaded-books/book_' + bookIdNumber + '.txt', // Correct path format based on OutputOptions
-        },
-      };
+        let data = '';
 
-      // Step 3: Fetch the book data using the downloadBook function (from Shamela)
-      const bookData = await downloadBook(bookIdNumber, options);
+        pythonProcess.stdout.on('data', (chunk) => {
+            data += chunk.toString();
+        });
 
-      // Parse the bookData response to extract title and content
-      if (!bookData) {
-        throw new Error('Failed to extract data from Shamela');
-      }
+        pythonProcess.stderr.on('data', (error) => {
+            console.error(`Python Error: ${error.toString()}`);
+        });
 
-      // Assuming bookData is a string, you might need to parse or process it
-      const title = bookData.split("\n")[0];  // Example: take the first line as title
-      const content = bookData;  // Example: use full content
+        pythonProcess.on('close', async (code) => {
+            if (code !== 0) {
+                return res.status(500).json({ error: "Python script execution failed" });
+            }
 
-      // Step 4: Save the scraped data to MongoDB
-      const newScrapedData = await shamelaScrapperRepository.create({
-        title,
-        content,
-      });
+            try {
+                console.log("Python script output:", data);  // Log the raw output from Python script
 
-      // Step 5: Send response to the client
-      res.status(200).json({
-        message: 'Data scraped and saved successfully',
-        data: { title, content },
-      });
-    } catch (error) {
-      console.error('Error during scraping:', error);
-      res.status(500).json({ message: 'Failed to scrape data', error: error });
+                // Check if the data returned is valid JSON
+                const parsedData = JSON.parse(data);
+                
+                // If there was an error in the Python script (like status 404), handle it
+                if (parsedData.error) {
+                    return res.status(404).json({ error: parsedData.error });
+                }
+                
+                // Log parsed data to check before saving
+                console.log("Parsed data:", parsedData);
+
+                if (parsedData) {
+                    // Ensure that the repository method is saving the data correctly
+                    await shamelaScrapperRepository.create(parsedData);
+                    console.log("Data saved successfully.");
+                }
+
+                res.json(parsedData);  // Return the scraped data
+            } catch (parseError) {
+                console.error("Failed to parse JSON:", parseError);
+                res.status(500).json({ error: "Invalid JSON response from Python script" });
+            }
+        });
+
+    } catch (error: any) {
+        console.error("Server Error:", error);
+        res.status(500).json({ error: error.message || "Internal Server Error" });
     }
-  }
+});
 
-  // Helper function to extract book ID from the URL
-  private extractBookIdFromUrl(url: string): string | null {
-    const regex = /\/book\/(\d+)/;  // Adjust regex to match Shamela's URL pattern
-    const match = url.match(regex);
-    return match ? match[1] : null;
-  }
-}
+export default router;

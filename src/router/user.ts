@@ -5,7 +5,7 @@ import { authenticateUser } from "../middleware/authenticateUser";
 import { authorizeRoles } from "../middleware/authorizeUserRole";
 import upload from "../middleware/uploadFiles";
 
-router.post("/",authenticateUser,authorizeRoles(["annotator","Super Admin"]), new UserController().create);
+router.post("/", new UserController().create);
 router.get("/",authenticateUser,authorizeRoles(["Super Admin"]),new UserController().getAllUsers);
 router.get("/:userId",authenticateUser,authorizeRoles(["Super Admin"]),new UserController().getUserById);
 router.post("/login",new UserController().login);
