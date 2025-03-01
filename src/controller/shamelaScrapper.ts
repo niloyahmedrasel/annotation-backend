@@ -9,11 +9,13 @@ const router: Router = express.Router();
 router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
     try {
         const { url } = req.body;
+        console.log("URL:", url);
 
         if (!url) {
             return res.status(400).json({ error: "No URL provided" });
         }
 
+        // Pass the URL to the Python script dynamically
         const pythonProcess = spawn('python3', [path.join(__dirname, '../scripts/scraper.py'), url]);
 
         let data = '';
@@ -32,26 +34,17 @@ router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
             }
 
             try {
-                console.log("Python script output:", data);  // Log the raw output from Python script
+                console.log("Python script output:", data);
 
-                // Check if the data returned is valid JSON
+                // Parse the output from the Python script
                 const parsedData = JSON.parse(data);
                 
-                // If there was an error in the Python script (like status 404), handle it
+                // Handle errors if they occur in the Python script
                 if (parsedData.error) {
                     return res.status(404).json({ error: parsedData.error });
                 }
-                
-                // Log parsed data to check before saving
-                console.log("Parsed data:", parsedData);
 
-                if (parsedData) {
-                    // Ensure that the repository method is saving the data correctly
-                    await shamelaScrapperRepository.create(parsedData);
-                    console.log("Data saved successfully.");
-                }
-
-                res.json(parsedData);  // Return the scraped data
+                res.json(parsedData);  // Return the scraped data as response
             } catch (parseError) {
                 console.error("Failed to parse JSON:", parseError);
                 res.status(500).json({ error: "Invalid JSON response from Python script" });
