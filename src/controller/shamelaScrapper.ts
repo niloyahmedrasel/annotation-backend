@@ -11,26 +11,42 @@ router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
         const { url } = req.body;
         console.log("URL:", url);
 
+        // Validate the URL
         if (!url) {
-            return res.status(400).json({ error: "No URL provided" });
+            return res.status(400).json({ error: "Invalid or missing URL" });
         }
 
-        // Pass the URL to the Python script dynamically
-        const pythonProcess = spawn('python3', [path.join(__dirname, '../scripts/scraper.py'), url]);
+        // Determine the Python executable (python3 or python)
+        const pythonExecutable = process.platform === 'win32' ? 'python' : 'python3';
+
+        // Path to the Python script
+        const scriptPath = path.join(__dirname, '../scripts/scraper.py');
+
+        // Spawn the Python process
+        const pythonProcess = spawn(pythonExecutable, [scriptPath, url]);
 
         let data = '';
+        let errorData = '';
 
+        // Collect data from stdout
         pythonProcess.stdout.on('data', (chunk) => {
             data += chunk.toString();
         });
 
+        // Collect errors from stderr
         pythonProcess.stderr.on('data', (error) => {
+            errorData += error.toString();
             console.error(`Python Error: ${error.toString()}`);
         });
 
+        // Handle process close event
         pythonProcess.on('close', async (code) => {
             if (code !== 0) {
-                return res.status(500).json({ error: "Python script execution failed" });
+                console.error("Python script failed with code:", code);
+                return res.status(500).json({ 
+                    error: "Python script execution failed",
+                    details: errorData || "Unknown error"
+                });
             }
 
             try {
@@ -44,10 +60,14 @@ router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
                     return res.status(404).json({ error: parsedData.error });
                 }
 
-                res.json(parsedData);  // Return the scraped data as response
+                // Return the scraped data as response
+                res.json(parsedData);
             } catch (parseError) {
                 console.error("Failed to parse JSON:", parseError);
-                res.status(500).json({ error: "Invalid JSON response from Python script" });
+                res.status(500).json({ 
+                    error: "Invalid JSON response from Python script",
+                    details: data  // Include the raw output for debugging
+                });
             }
         });
 

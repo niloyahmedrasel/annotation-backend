@@ -1,9 +1,12 @@
 import sys
 import json
 import requests
-from bs4 import BeautifulSoup
 import os
 import csv
+from bs4 import BeautifulSoup
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
 # Define color styles for span classes
 color_styles = {
@@ -44,7 +47,7 @@ def scrape_page_content(url):
         if main_div:
             paragraphs = main_div.find_all('p')
             
-            # Format Issue with color styling for each span class
+            # Format Issue with color styling
             if len(paragraphs) >= 2:
                 issue_paragraphs = []
                 for para in paragraphs[:2]:
@@ -54,9 +57,9 @@ def scrape_page_content(url):
                         if span_class in color_styles:
                             span['style'] = color_styles[span_class]
                     issue_paragraphs.append(str(p_soup))
-                issue_html = "".join(issue_paragraphs)  # Use <br> for line breaks in HTML
+                issue_html = "".join(issue_paragraphs)
 
-            # Format Fatwa with color styling for each span class
+            # Format Fatwa with color styling
             fatwa_texts = []
             for i in range(2, len(paragraphs)):
                 if 'hamesh' in paragraphs[i].get('class', []):
@@ -123,7 +126,6 @@ def scrape_page_content(url):
         </html>
         """
         
-        # Return extracted data and HTML content
         return {
             "url": url,
             "hadith_no": hadith_no,
@@ -146,46 +148,136 @@ def save_html_file(content, folder_name, file_name):
     file_path = os.path.join(folder_name, file_name)
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(content)
-    print(f"HTML file saved at '{file_path}'", file=sys.stderr)  # Log to stderr
+    print(f"HTML file saved at '{file_path}'", file=sys.stderr)
 
 def save_to_csv_file(data, folder_name, file_name):
-    """Saves all scraped data to a CSV file."""
+    """Appends all scraped data to a CSV file."""
     os.makedirs(folder_name, exist_ok=True)
     csv_file_path = os.path.join(folder_name, file_name)
     
-    # Define CSV headers
     headers = ["url", "hadith_no", "volume_no", "book_page", "chapter", "question", "issue", "fatwa", "hamesh"]
+    data_for_csv = {key: data.get(key, "") for key in headers}
     
-    # Remove 'html_content' from the data to avoid CSV errors
-    data_for_csv = {key: data[key] for key in headers}
+    file_exists = os.path.isfile(csv_file_path)
     
-    with open(csv_file_path, mode="w", encoding="utf-8-sig", newline="") as csv_file:
+    with open(csv_file_path, mode="a", encoding="utf-8-sig", newline="") as csv_file:
         writer = csv.DictWriter(csv_file, fieldnames=headers)
-        writer.writeheader()
+        if not file_exists:
+            writer.writeheader()
         writer.writerow(data_for_csv)
-    print(f"CSV file saved at '{csv_file_path}'", file=sys.stderr)  # Log to stderr
+    print(f"CSV file saved at '{csv_file_path}'", file=sys.stderr)
 
-def main(url):
-    """Main function to scrape data, save HTML, and save CSV."""
-    # Scrape the page content
-    scraped_data = scrape_page_content(url)
+def numeric_sort_key(filename):
+    """Helper function for numeric sorting of filenames."""
+    numeric_part = ''.join(filter(str.isdigit, filename))
+    return int(numeric_part) if numeric_part.isdigit() else float('inf')
+
+def combine_html(input_dir, output_dir):
+    """Combines all HTML files into a single organized document."""
+    os.makedirs(output_dir, exist_ok=True)
+    combined_path = os.path.join(output_dir, "combined.html")
     
-    if "error" in scraped_data:
-        print(json.dumps(scraped_data))
-        return
+    with open(combined_path, "w", encoding="utf-8") as outfile:
+        outfile.write('<html lang="ar" dir="rtl">\n<head><meta charset="UTF-8"></head>\n<body>\n')
+        
+        unique_chapters = set()
+        for filename in sorted(os.listdir(input_dir), key=numeric_sort_key):
+            if filename.endswith('.html'):
+                filepath = os.path.join(input_dir, filename)
+                with open(filepath, "r", encoding="utf-8") as infile:
+                    soup = BeautifulSoup(infile, "html.parser")
+                    
+                    # Handle chapter duplicates
+                    chapter_tag = soup.find("h3")
+                    if chapter_tag:
+                        chapter_text = chapter_tag.get_text(strip=True)
+                        if chapter_text in unique_chapters:
+                            chapter_tag.decompose()
+                        else:
+                            unique_chapters.add(chapter_text)
+                    
+                    # Extract and write body content
+                    body = soup.find("body")
+                    if body:
+                        outfile.write(str(body))
+        
+        outfile.write('</body>\n</html>')
+    return combined_path
 
-    # Save HTML file
-    folder_name = "scraped_data"
-    html_file_name = f"page_{url.split('/')[-1].replace('#', '_')}.html"
-    save_html_file(scraped_data["html_content"], folder_name, html_file_name)
+def html_to_docx(html_path, docx_path):
+    """Converts combined HTML file to a formatted DOCX document."""
+    doc = Document()
+    
+    with open(html_path, "r", encoding="utf-8") as f:
+        soup = BeautifulSoup(f, "html.parser")
+        
+        for div in soup.find_all("div", dir="rtl"):
+            elements = div.find_all(["h3", "p", "small"])
+            
+            for element in elements:
+                if element.name == "h3":
+                    heading = doc.add_heading(element.text, level=3)
+                    heading.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+                elif element.name == "p":
+                    style = element.get("style", "")
+                    text = element.get_text(strip=True)
+                    para = doc.add_paragraph()
+                    run = para.add_run(text)
+                    
+                    if "font-weight: bold" in style:
+                        run.bold = True
+                    
+                    if "V:" in text and "P:" in text:
+                        para.runs[0].font.size = Pt(10)
+                    
+                    para.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+                elif element.name == "small":
+                    para = doc.add_paragraph(element.text)
+                    para.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
+                    para.runs[0].font.size = Pt(10)
+    
+    doc.save(docx_path)
 
-    # Save CSV file
-    csv_file_name = "scraped_data.csv"
-    save_to_csv_file(scraped_data, folder_name, csv_file_name)
 
-    # Return the scraped data as JSON (print to stdout)
-    print(json.dumps(scraped_data))
+
+def main(urls):
+    """Main function to process URLs and generate outputs."""
+    # Create output directories
+    scraped_dir = "scraped_data"
+    combined_dir = "combined_output"
+    
+    # Scrape each URL
+    results = []
+    for url in urls:
+        data = scrape_page_content(url)
+        if "error" in data:
+            results.append(data)
+            continue
+        
+        # Generate unique filename from URL
+        filename = f"page_{url.split('/')[-1].replace('#', '_')}.html"
+        save_html_file(data["html_content"], scraped_dir, filename)
+        save_to_csv_file(data, scraped_dir, "scraped_data.csv")
+        results.append(data)
+    
+    # Combine HTML files
+    combined_html = combine_html(scraped_dir, combined_dir)
+    
+    # Convert to DOCX
+    output_docx = os.path.join(combined_dir, "output.docx")
+    html_to_docx(combined_html, output_docx)
+    
+    # Output JSON result
+    result = {
+        "status": "success",
+        "output_docx": output_docx,
+        "scraped_data": results
+    }
+    print(json.dumps(result))
 
 if __name__ == "__main__":
-    url = sys.argv[1]  # Get URL from command-line argument
-    main(url)
+    if len(sys.argv) < 2:
+        print(json.dumps({"error": "Usage: python script.py <URL1> <URL2> ..."}))
+        sys.exit(1)
+    
+    main(sys.argv[1:])
