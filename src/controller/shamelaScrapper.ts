@@ -1,19 +1,16 @@
 import express, { Request, Response, Router } from 'express';
 import { spawn } from 'child_process';
 import path from 'path';
-import { ShamelaScrapperRepository } from '../repository/shamelaScrapper';
 
-const shamelaScrapperRepository = new ShamelaScrapperRepository();
 const router: Router = express.Router();
 
 router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
     try {
-        const { url } = req.body;
-        console.log("URL:", url);
+        const { baseUrl, bookNumber, startPage, endPage } = req.body;
 
-        // Validate the URL
-        if (!url) {
-            return res.status(400).json({ error: "Invalid or missing URL" });
+        // Validate inputs
+        if (!baseUrl || !bookNumber || !startPage || !endPage) {
+            return res.status(400).json({ error: "Missing required fields: baseUrl, bookNumber, startPage, endPage" });
         }
 
         // Determine the Python executable (python3 or python)
@@ -22,8 +19,8 @@ router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
         // Path to the Python script
         const scriptPath = path.join(__dirname, '../scripts/scraper.py');
 
-        // Spawn the Python process
-        const pythonProcess = spawn(pythonExecutable, [scriptPath, url]);
+        // Spawn the Python process with dynamic inputs
+        const pythonProcess = spawn(pythonExecutable, [scriptPath, baseUrl, bookNumber, startPage, endPage]);
 
         let data = '';
         let errorData = '';

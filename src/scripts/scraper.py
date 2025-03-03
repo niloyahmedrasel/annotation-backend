@@ -2,11 +2,12 @@ import sys
 import json
 import requests
 import os
-import csv
 from bs4 import BeautifulSoup
 from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 
 # Define color styles for span classes
 color_styles = {
@@ -16,6 +17,14 @@ color_styles = {
     "c4": "color: purple;",
     "c5": "color: orange;"
 }
+
+def generate_urls(base_url, book_number, start_page, end_page):
+    """Generates a list of URLs based on the book number and page range."""
+    urls = []
+    for page in range(start_page, end_page + 1):
+        url = base_url.format(bookNumber=book_number, pageNumber=page)
+        urls.append(url)
+    return urls
 
 def scrape_page_content(url):
     """Scrapes data and HTML content from a given URL."""
@@ -75,7 +84,7 @@ def scrape_page_content(url):
             fatwa_html = "".join(fatwa_texts)
         
         # Prepare HTML content with table formatting
-        html_content = f"""
+        html_content_with_table = f"""
         <html lang="ar" dir="rtl">
         <head>
         <meta charset="UTF-8">
@@ -126,6 +135,25 @@ def scrape_page_content(url):
         </html>
         """
         
+        # Prepare HTML content without table (only content)
+        html_content_without_table = f"""
+        <html lang="ar" dir="rtl">
+        <head>
+        <meta charset="UTF-8">
+        <style>
+            body {{ font-family: Arial, sans-serif; direction: rtl; }}
+            p {{ line-height: 1.6; }}
+        </style>
+        </head>
+        <body>
+        {issue_html}
+        {fatwa_html}
+        {hamesh}
+        <div style="page-break-after: always;">..............</div>
+        </body>
+        </html>
+        """
+        
         return {
             "url": url,
             "hadith_no": hadith_no,
@@ -136,7 +164,8 @@ def scrape_page_content(url):
             "issue": issue_html,
             "fatwa": fatwa_html,
             "hamesh": hamesh,
-            "html_content": html_content
+            "html_content_with_table": html_content_with_table,
+            "html_content_without_table": html_content_without_table
         }
 
     except Exception as e:
@@ -150,101 +179,96 @@ def save_html_file(content, folder_name, file_name):
         file.write(content)
     print(f"HTML file saved at '{file_path}'", file=sys.stderr)
 
-def save_to_csv_file(data, folder_name, file_name):
-    """Appends all scraped data to a CSV file."""
-    os.makedirs(folder_name, exist_ok=True)
-    csv_file_path = os.path.join(folder_name, file_name)
-    
-    headers = ["url", "hadith_no", "volume_no", "book_page", "chapter", "question", "issue", "fatwa", "hamesh"]
-    data_for_csv = {key: data.get(key, "") for key in headers}
-    
-    file_exists = os.path.isfile(csv_file_path)
-    
-    with open(csv_file_path, mode="a", encoding="utf-8-sig", newline="") as csv_file:
-        writer = csv.DictWriter(csv_file, fieldnames=headers)
-        if not file_exists:
-            writer.writeheader()
-        writer.writerow(data_for_csv)
-    print(f"CSV file saved at '{csv_file_path}'", file=sys.stderr)
-
-def numeric_sort_key(filename):
-    """Helper function for numeric sorting of filenames."""
-    numeric_part = ''.join(filter(str.isdigit, filename))
-    return int(numeric_part) if numeric_part.isdigit() else float('inf')
-
-def combine_html(input_dir, output_dir):
-    """Combines all HTML files into a single organized document."""
+def combine_html_with_table(input_dir, output_dir):
+    """Combines all HTML files with table data into a single document."""
     os.makedirs(output_dir, exist_ok=True)
-    combined_path = os.path.join(output_dir, "combined.html")
+    combined_path = os.path.join(output_dir, "combined_with_table.html")
     
     with open(combined_path, "w", encoding="utf-8") as outfile:
         outfile.write('<html lang="ar" dir="rtl">\n<head><meta charset="UTF-8"></head>\n<body>\n')
         
-        unique_chapters = set()
-        for filename in sorted(os.listdir(input_dir), key=numeric_sort_key):
-            if filename.endswith('.html'):
+        for filename in sorted(os.listdir(input_dir)):
+            if filename.endswith('.html') and "_with_table" in filename:
                 filepath = os.path.join(input_dir, filename)
                 with open(filepath, "r", encoding="utf-8") as infile:
-                    soup = BeautifulSoup(infile, "html.parser")
-                    
-                    # Handle chapter duplicates
-                    chapter_tag = soup.find("h3")
-                    if chapter_tag:
-                        chapter_text = chapter_tag.get_text(strip=True)
-                        if chapter_text in unique_chapters:
-                            chapter_tag.decompose()
-                        else:
-                            unique_chapters.add(chapter_text)
-                    
-                    # Extract and write body content
-                    body = soup.find("body")
-                    if body:
-                        outfile.write(str(body))
+                    content = infile.read()
+                    outfile.write(content)
         
         outfile.write('</body>\n</html>')
     return combined_path
 
+def combine_html_without_table(input_dir, output_dir):
+    """Combines all HTML files without table data into a single document."""
+    os.makedirs(output_dir, exist_ok=True)
+    combined_path = os.path.join(output_dir, "combined_without_table.html")
+    
+    with open(combined_path, "w", encoding="utf-8") as outfile:
+        outfile.write('<html lang="ar" dir="rtl">\n<head><meta charset="UTF-8"></head>\n<body>\n')
+        
+        for filename in sorted(os.listdir(input_dir)):
+            if filename.endswith('.html') and "_without_table" in filename:
+                filepath = os.path.join(input_dir, filename)
+                with open(filepath, "r", encoding="utf-8") as infile:
+                    content = infile.read()
+                    outfile.write(content)
+                    outfile.write('<div style="page-break-after: always;">..............</div>')  # Add page break
+        
+        outfile.write('</body>\n</html>')
+    return combined_path
+
+def add_page_break(doc):
+    """Adds a page break to the document."""
+    paragraph = doc.add_paragraph()
+    run = paragraph.add_run()
+    break_element = OxmlElement("w:br")
+    break_element.set(qn("w:type"), "page")
+    run._r.append(break_element)
+
 def html_to_docx(html_path, docx_path):
-    """Converts combined HTML file to a formatted DOCX document."""
+    """Converts combined HTML file (without table data) to a formatted DOCX document."""
     doc = Document()
     
     with open(html_path, "r", encoding="utf-8") as f:
         soup = BeautifulSoup(f, "html.parser")
         
-        for div in soup.find_all("div", dir="rtl"):
-            elements = div.find_all(["h3", "p", "small"])
-            
-            for element in elements:
+        # Process all elements in the body
+        body = soup.find("body")
+        if body:
+            for element in body.find_all(["h3", "p", "small"]):
                 if element.name == "h3":
                     heading = doc.add_heading(element.text, level=3)
                     heading.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
                 elif element.name == "p":
-                    style = element.get("style", "")
-                    text = element.get_text(strip=True)
                     para = doc.add_paragraph()
-                    run = para.add_run(text)
-                    
-                    if "font-weight: bold" in style:
-                        run.bold = True
-                    
-                    if "V:" in text and "P:" in text:
-                        para.runs[0].font.size = Pt(10)
-                    
+                    run = para.add_run(element.text)
                     para.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
                 elif element.name == "small":
                     para = doc.add_paragraph(element.text)
                     para.paragraph_format.alignment = WD_PARAGRAPH_ALIGNMENT.RIGHT
                     para.runs[0].font.size = Pt(10)
+            
+            # Add a page break after each page's content
+            add_page_break(doc)
     
     doc.save(docx_path)
 
+def html_to_doc(html_path, doc_path):
+    """Converts combined HTML file (without table data) to a DOC file."""
+    # Use the same logic as DOCX conversion since DOC is not natively supported by python-docx
+    # You can use external tools like `pandoc` for DOC conversion if needed.
+    # For now, we'll save it as DOCX and rename it to DOC.
+    temp_docx_path = doc_path.replace(".doc", ".docx")
+    html_to_docx(html_path, temp_docx_path)
+    os.rename(temp_docx_path, doc_path)
 
-
-def main(urls):
+def main(base_url, book_number, start_page, end_page):
     """Main function to process URLs and generate outputs."""
     # Create output directories
     scraped_dir = "scraped_data"
     combined_dir = "combined_output"
+    
+    # Generate URLs dynamically
+    urls = generate_urls(base_url, book_number, start_page, end_page)
     
     # Scrape each URL
     results = []
@@ -254,30 +278,46 @@ def main(urls):
             results.append(data)
             continue
         
-        # Generate unique filename from URL
-        filename = f"page_{url.split('/')[-1].replace('#', '_')}.html"
-        save_html_file(data["html_content"], scraped_dir, filename)
-        save_to_csv_file(data, scraped_dir, "scraped_data.csv")
+        # Generate unique filenames from URL
+        filename_with_table = f"page_{url.split('/')[-1].replace('#', '_')}_with_table.html"
+        filename_without_table = f"page_{url.split('/')[-1].replace('#', '_')}_without_table.html"
+        
+        # Save HTML files
+        save_html_file(data["html_content_with_table"], scraped_dir, filename_with_table)
+        save_html_file(data["html_content_without_table"], scraped_dir, filename_without_table)
         results.append(data)
     
-    # Combine HTML files
-    combined_html = combine_html(scraped_dir, combined_dir)
+    # Combine HTML files with table data
+    combined_html_with_table = combine_html_with_table(scraped_dir, combined_dir)
     
-    # Convert to DOCX
-    output_docx = os.path.join(combined_dir, "output.docx")
-    html_to_docx(combined_html, output_docx)
+    # Combine HTML files without table data
+    combined_html_without_table = combine_html_without_table(scraped_dir, combined_dir)
+    
+    # Convert the new combined HTML (without table data) to DOCX
+    output_docx = os.path.join(combined_dir, "output_without_table.docx")
+    html_to_docx(combined_html_without_table, output_docx)
+    
+    # Convert the new combined HTML (without table data) to DOC
+    output_doc = os.path.join(combined_dir, "output_without_table.doc")
+    html_to_doc(combined_html_without_table, output_doc)
     
     # Output JSON result
     result = {
         "status": "success",
         "output_docx": output_docx,
+        "output_doc": output_doc,
         "scraped_data": results
     }
     print(json.dumps(result))
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print(json.dumps({"error": "Usage: python script.py <URL1> <URL2> ..."}))
+    if len(sys.argv) != 5:
+        print(json.dumps({"error": "Usage: python script.py <base_url> <book_number> <start_page> <end_page>"}))
         sys.exit(1)
     
-    main(sys.argv[1:])
+    base_url = sys.argv[1]
+    book_number = int(sys.argv[2])
+    start_page = int(sys.argv[3])
+    end_page = int(sys.argv[4])
+    
+    main(base_url, book_number, start_page, end_page)
