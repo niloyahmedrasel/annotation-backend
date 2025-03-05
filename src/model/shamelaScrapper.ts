@@ -1,18 +1,19 @@
-import mongoose from "mongoose";
-import { ShamelaScrapper } from "./interface/shamelaScrapper";
+import  mongoose from "mongoose";
+import { Scraper } from "./interface/shamelaScrapper";
 
-// Update the content field to be an array of strings
-export const shamelaScrapperSchema = new mongoose.Schema<ShamelaScrapper>({
-    url: {
+const scraperSchema = new mongoose.Schema<Scraper>({
+    fileName: {
         type: String,
         required: true
     },
-    content: {
-        type: [String], // Array of strings
+    fileType: {
+        type: String,
         required: true
     },
-}, {
-    timestamps: true
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 });
 
-export const ShamelaScrapperModel = mongoose.model<ShamelaScrapper>("ShamelaScrapper", shamelaScrapperSchema);
+export const ScraperModel = mongoose.model<Scraper>('Scraper', scraperSchema);

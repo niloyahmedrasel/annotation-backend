@@ -1,8 +1,11 @@
 import express, { Request, Response, Router } from 'express';
 import { spawn } from 'child_process';
 import path from 'path';
-
+import fs from 'fs';
+import { ShamelaScrapperRepository } from '../repository/shamelaScrapper';
 const router: Router = express.Router();
+
+const shamelaScrapperRepository = new ShamelaScrapperRepository()
 
 router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
     try {
@@ -56,9 +59,24 @@ router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
                 if (parsedData.error) {
                     return res.status(404).json({ error: parsedData.error });
                 }
+                const combinedFilePath = parsedData.output_doc; // or parsedData.output_doc
+                
+
+                // Save the file to the database
+                const newScraperDoc = await shamelaScrapperRepository.create({
+                    fileName: path.basename(combinedFilePath),
+                    fileType: path.extname(combinedFilePath),
+                });
+
+                await newScraperDoc.save();
+
+                // Return the scraped data and the saved document ID as response
+                res.json({
+                    ...parsedData,
+                    savedDocumentId: newScraperDoc._id,
+                });
 
                 // Return the scraped data as response
-                res.json(parsedData);
             } catch (parseError) {
                 console.error("Failed to parse JSON:", parseError);
                 res.status(500).json({ 
@@ -68,6 +86,16 @@ router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
             }
         });
 
+    } catch (error: any) {
+        console.error("Server Error:", error);
+        res.status(500).json({ error: error.message || "Internal Server Error" });
+    }
+});
+
+router.get('/scraped-documents', async (req: Request, res: Response): Promise<any> => {
+    try {
+        const documents = await shamelaScrapperRepository.find({});
+        res.json(documents);
     } catch (error: any) {
         console.error("Server Error:", error);
         res.status(500).json({ error: error.message || "Internal Server Error" });

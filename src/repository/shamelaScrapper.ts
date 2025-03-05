@@ -1,9 +1,9 @@
-import { ShamelaScrapper } from "../model/interface/shamelaScrapper";
-import { ShamelaScrapperModel } from "../model/shamelaScrapper";
+import { Scraper } from "../model/interface/shamelaScrapper";
 import { baseRepository } from "./baseRepository";
+import {ScraperModel} from "../model/shamelaScrapper";
 
-export class ShamelaScrapperRepository extends baseRepository<ShamelaScrapper> {
+export class ShamelaScrapperRepository extends baseRepository<Scraper> {
     constructor() {
-        super(ShamelaScrapperModel);
+        super(ScraperModel);
     }
 }

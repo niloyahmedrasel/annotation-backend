@@ -1,6 +1,7 @@
-import { Document } from "mongoose";
+import { Document } from 'mongoose';
 
-export interface ShamelaScrapper extends Document {
-    url: string;
-    content: string[]; // Updated to an array of strings
+export interface Scraper extends Document {
+  fileName: string;
+  fileType: string;
+  createdAt: Date;
 }
