@@ -12,7 +12,7 @@ import docEditorRouter from "./router/docEditor";
 import scrapRouter from "./controller/shamelaScrapper"
 import path from "path";
 import bodyParser from "body-parser";
-
+import { seed } from "./seeder";
 
 const port = process.env.PORT || 5000;
 
@@ -23,7 +23,13 @@ app.options("*", cors());
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
 connectDB();
+seed();
+app.use("/output", express.static(path.join(__dirname, "../combined_output")));
 app.use("/upload", express.static(path.join(__dirname, "../public/upload")));
+
+  
+
+console.log(path.join(__dirname, "../combined_output"));
 
 app.use("/api/user", userRouter);
 app.use("/api/book", bookRouter);

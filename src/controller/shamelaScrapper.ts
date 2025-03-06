@@ -102,4 +102,18 @@ router.get('/scraped-documents', async (req: Request, res: Response): Promise<an
     }
 });
 
+router.get('/scraped-documents/:id', async (req: Request, res: Response): Promise<any> => {
+    try {
+        const documentId = req.params.id;
+        const document = await shamelaScrapperRepository.findById(documentId);
+        if (!document) {
+            return res.status(404).json({ error: "Document not found" });
+        }
+        res.json(document);
+    } catch (error: any) {
+        console.error("Server Error:", error);
+        res.status(500).json({ error: error.message || "Internal Server Error" });
+    }
+});
+
 export default router;
