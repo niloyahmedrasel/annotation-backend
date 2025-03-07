@@ -8,25 +8,22 @@ export class DocEditorController {
         try {
             const { bookId } = req.params;
 
-            // Fetch the book document from your database using the bookId
-            const book = await bookRepository.findById(bookId); // Assuming BookModel is your Mongoose model
+            const book = await bookRepository.findById(bookId);
             if (!book) {
                 return res.status(404).json({ error: 'Book not found' });
             }
 
-            // Ensure that the book contains a valid bookfile URL (assuming it's stored in 'bookfile')
-            const fileUrl = book.bookFile;
-            if (!fileUrl) {
+            const fileName = book.bookFile;
+            if (!fileName) {
                 return res.status(400).json({ error: 'No document file available' });
             }
 
-            // The ONLYOFFICE Document Server URL (Replace with your actual ONLYOFFICE server URL)
-            const onlyOfficeServer = 'https://office.pathok.com.bd'; // Update with your ONLYOFFICE server URL
+            const fileUrl = `https://lkp.pathok.com.bd/upload/${fileName}`;
 
-            // Generate the ONLYOFFICE editor URL
+            const onlyOfficeServer = 'https://office.pathok.com.bd';
+
             const editorUrl = `${onlyOfficeServer}/edit?file=${encodeURIComponent(fileUrl)}`;
 
-            // Return the editor URL to the frontend
             res.json({ editorUrl });
         } catch (error) {
             console.error("Error fetching book or generating editor URL:", error);
