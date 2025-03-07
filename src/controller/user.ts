@@ -75,7 +75,7 @@ export class UserController {
             if(!user){
                 throw new AppError("User not found",404)
             }
-            const token = jwt.sign({id:user._id,role:user.role,permissions:user.permissions},process.env.JWT_SECRET as string,{expiresIn:"1d"})
+            const token = jwt.sign({id:user._id,role:user.role,permissions:user.permissions},"secret",{expiresIn:"1d"})
             
             res.status(200).json({message:"User logged in successfully",user,token});
             
