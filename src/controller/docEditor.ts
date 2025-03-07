@@ -7,6 +7,7 @@ export class DocEditorController {
     async openDocEditor(req: Request, res: Response): Promise<any> {
         try {
             const { bookId } = req.params;
+            console.log(bookId)
 
             const book = await bookRepository.findById(bookId);
             if (!book) {
@@ -17,6 +18,8 @@ export class DocEditorController {
             if (!fileName) {
                 return res.status(400).json({ error: 'No document file available' });
             }
+
+            console.log(fileName)
 
             const fileUrl = `https://lkp.pathok.com.bd/upload/${fileName}`;
 
