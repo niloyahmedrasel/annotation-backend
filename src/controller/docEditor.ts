@@ -44,7 +44,8 @@ export class DocEditorController {
             const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
 
             // Construct the editor URL (without callbackUrl)
-            const editorUrl = `${onlyOfficeServer}/edit?file=${encodeURIComponent(fileUrl)}`;
+            // Update the editor URL construction
+          const editorUrl = `${onlyOfficeServer}/edit?file=${encodeURIComponent(fileUrl)}&token=${token}`;
 
             // Return the editor URL and the JWT token
             res.json({ editorUrl, token });
