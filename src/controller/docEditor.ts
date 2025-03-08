@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 const bookRepository = new BookRepository();
 
 // Replace with your JWT secret (retrieved from ONLYOFFICE)
-const JWT_SECRET = "InUsmC7X9Semktj2S2BBBluVBgwzVPvm";
+const JWT_SECRET = "Bf4CnTTGnX7Swht1ZolvlpPtcyBzEpr0";
 
 export class DocEditorController {
     async openDocEditor(req: Request, res: Response): Promise<any> {
