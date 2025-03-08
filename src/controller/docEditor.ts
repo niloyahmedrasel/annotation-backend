@@ -41,11 +41,21 @@ export class DocEditorController {
                 },
             };
 
-            const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "1h" });
+            // Change from 1 hour to 24 hours
+            const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
 
             // Construct the editor URL (without callbackUrl)
             // Update the editor URL construction
-          const editorUrl = `${onlyOfficeServer}/edit?file=${encodeURIComponent(fileUrl)}&token=${token}`;
+          // Add proper JWT header instead of URL parameter
+            const editorUrl = `${onlyOfficeServer}/edit?file=${encodeURIComponent(fileUrl)}`;
+
+            // In your frontend implementation, send the token via Authorization header:
+            // Example using fetch API:
+            fetch(editorUrl, {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            })
 
             // Return the editor URL and the JWT token
             res.json({ editorUrl, token });
