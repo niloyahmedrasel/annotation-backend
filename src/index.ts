@@ -10,9 +10,12 @@ import issueRouter from "./router/issue";
 import permissionRouter from "./router/permission";
 import docEditorRouter from "./router/docEditor";
 import scrapRouter from "./controller/shamelaScrapper"
+import wopiRoutes from "./router/hostingDiscovery"
 import path from "path";
 import bodyParser from "body-parser";
 import { seed } from "./seeder";
+import { HostingDiscoveryController } from "./controller/hostingDiscovery";
+const hostingDiscoveryController = new HostingDiscoveryController();
 
 const port = process.env.PORT || 5000;
 
@@ -38,10 +41,12 @@ app.use("/api/issue", issueRouter);
 app.use("/api/permission", permissionRouter);
 app.use("/api/docEditor", docEditorRouter);
 app.use("/api", scrapRouter);
+app.use("/", wopiRoutes);
 
 app.get("/", (req, res) => {
     res.send("hello world!")
 })
+
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`)
