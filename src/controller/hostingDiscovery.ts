@@ -151,7 +151,7 @@ export class HostingDiscoveryController {
 
       console.log("this is document",document)
 
-      const filePath = path.join(__dirname, 'public', 'upload', document.bookFile);
+      const filePath = path.resolve(__dirname, '../../public/upload', document.bookFile);
 
       console.log("this is file path",filePath)
       
