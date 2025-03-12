@@ -149,7 +149,11 @@ export class HostingDiscoveryController {
         return res.status(404).send('Document not found');
       }
 
+      console.log("this is document",document)
+
       const filePath = path.join(__dirname, 'public', 'upload', document.bookFile);
+
+      console.log("this is file path",filePath)
       
       if (!fs.existsSync(filePath)) {
         return res.status(404).send('File not found');
