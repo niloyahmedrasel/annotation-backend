@@ -14,9 +14,9 @@ router.get("/wopi/edit", hostingDiscoveryController.editFile);
 router.get("/wopi/view", hostingDiscoveryController.viewFile);
 
 // ✅ WOPI File Metadata API
-router.get("/wopi/files/:fileId/checkfileinfo", hostingDiscoveryController.checkFileInfo);
+router.get("/wopi/files/:fileId", hostingDiscoveryController.checkFileInfo);
 
 // ✅ WOPI File Download API
-router.get("/wopi/files/:fileId", hostingDiscoveryController.getFile);
+router.get("/wopi/get/files/:fileId", hostingDiscoveryController.getFile);
 
 export default router;
