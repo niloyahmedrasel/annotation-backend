@@ -10,7 +10,19 @@ export class HostingDiscoveryController {
   
   // ✅ WOPI Discovery Endpoint
   async discoveryXML(req: Request, res: Response): Promise<any> {
+    const fileId = req.query.fileId; // Assuming you get fileId from the query params (or somewhere else in the request)
+    
+    // If fileId is missing, return an error (optional)
+    if (!fileId) {
+      return res.status(400).send('Missing fileId');
+    }
+  
+    const fileUrl = `https://lkp.pathok.com.bd/wopi/files/${fileId}`;
+    
+    // Set the Content-Type header for XML
     res.set('Content-Type', 'application/xml');
+    
+    // Send the discovery XML with the proper interpolated URL
     res.send(`
       <?xml version="1.0" encoding="UTF-8"?>
       <wopi-discovery>
@@ -18,15 +30,16 @@ export class HostingDiscoveryController {
           <app name="Word">
             <action name="view"
                     ext="docx"
-                    urlsrc="https://office.pathok.com.bd/office/editor?wopisrc=${encodeURIComponent('https://lkp.pathok.com.bd/wopi/files/${fileId}')}"/>
+                    urlsrc="https://office.pathok.com.bd/office/editor?wopisrc=${encodeURIComponent(fileUrl)}"/>
             <action name="edit"
                     ext="docx"
-                    urlsrc="https://office.pathok.com.bd/office/editor?wopisrc=${encodeURIComponent('https://lkp.pathok.com.bd/wopi/files/${fileId}')}"/>
+                    urlsrc="https://office.pathok.com.bd/office/editor?wopisrc=${encodeURIComponent(fileUrl)}"/>
           </app>
         </net-zone>
       </wopi-discovery>
     `);
   }
+  
 
   // ✅ Redirect to OnlyOffice Editor
   async editFile(req: Request, res: Response): Promise<any> {
