@@ -105,13 +105,16 @@ export class HostingDiscoveryController {
     try {
       const document = await bookRepository.findOne({ _id: fileId });
 
+      console.log("this is document",document)
       if (!document) {
         return res.status(404).send('Document not found');
       }
 
       const filePath = path.join(__dirname, 'public', 'upload', document.bookFile);
+      console.log("this is file path",filePath)
       const stats = fs.statSync(filePath);
 
+      console.log("this is stats",stats)
       res.json({
         BaseFileName: document.bookFile,
         OwnerId: "", // Add ownerId to your document model
