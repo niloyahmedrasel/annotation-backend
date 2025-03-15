@@ -2,19 +2,11 @@ import multer from "multer";
 import path from "path";
 import { Request } from "express";
 
-// Set up storage with multer
-const storage = multer.diskStorage({
-  destination: (req: Request, file: any, cb: any) => {
-    cb(null, path.join(__dirname, "../../public/upload")); // Directory where files will be stored
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname); 
-  }
-});
+// Use memory storage to store files as buffers
+const storage = multer.memoryStorage();
 
 // Define the file filter for different file types
 const fileFilter = (req: Request, file: any, cb: any) => {
-  // Define allowed file types
   const imageTypes = /jpeg|jpg|png|gif/;
   const documentTypes = /pdf|doc|docx/;
 
@@ -30,7 +22,7 @@ const fileFilter = (req: Request, file: any, cb: any) => {
   }
 };
 
-// Multer instance with the updated storage and fileFilter
+// Multer instance with memory storage and fileFilter
 const upload = multer({
   storage: storage,
   limits: { fileSize: 1024 * 1024 * 5 }, // 5MB limit
