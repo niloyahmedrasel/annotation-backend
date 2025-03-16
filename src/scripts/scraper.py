@@ -8,6 +8,7 @@ from docx.shared import Pt
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
+import datetime
 
 # Define color styles for span classes
 color_styles = {
@@ -179,10 +180,10 @@ def save_html_file(content, folder_name, file_name):
         file.write(content)
     print(f"HTML file saved at '{file_path}'", file=sys.stderr)
 
-def combine_html_with_table(input_dir, output_dir):
+def combine_html_with_table(input_dir, output_dir, run_id):
     """Combines all HTML files with table data into a single document."""
     os.makedirs(output_dir, exist_ok=True)
-    combined_path = os.path.join(output_dir, "combined_with_table.html")
+    combined_path = os.path.join(output_dir, f"combined_with_table_{run_id}.html")
     
     with open(combined_path, "w", encoding="utf-8") as outfile:
         outfile.write('<html lang="ar" dir="rtl">\n<head><meta charset="UTF-8"></head>\n<body>\n')
@@ -197,10 +198,10 @@ def combine_html_with_table(input_dir, output_dir):
         outfile.write('</body>\n</html>')
     return combined_path
 
-def combine_html_without_table(input_dir, output_dir):
+def combine_html_without_table(input_dir, output_dir, run_id):
     """Combines all HTML files without table data into a single document."""
     os.makedirs(output_dir, exist_ok=True)
-    combined_path = os.path.join(output_dir, "combined_without_table.html")
+    combined_path = os.path.join(output_dir, f"combined_without_table_{run_id}.html")
     
     with open(combined_path, "w", encoding="utf-8") as outfile:
         outfile.write('<html lang="ar" dir="rtl">\n<head><meta charset="UTF-8"></head>\n<body>\n')
@@ -254,15 +255,15 @@ def html_to_docx(html_path, docx_path):
 
 def html_to_doc(html_path, doc_path):
     """Converts combined HTML file (without table data) to a DOC file."""
-    # Use the same logic as DOCX conversion since DOC is not natively supported by python-docx
-    # You can use external tools like `pandoc` for DOC conversion if needed.
-    # For now, we'll save it as DOCX and rename it to DOC.
     temp_docx_path = doc_path.replace(".doc", ".docx")
     html_to_docx(html_path, temp_docx_path)
     os.rename(temp_docx_path, doc_path)
 
 def main(base_url, book_number, start_page, end_page):
     """Main function to process URLs and generate outputs."""
+    # Generate unique Run ID using current timestamp
+    run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    
     # Create output directories
     scraped_dir = "scraped_data"
     combined_dir = "combined_output"
@@ -278,9 +279,10 @@ def main(base_url, book_number, start_page, end_page):
             results.append(data)
             continue
         
-        # Generate unique filenames from URL
-        filename_with_table = f"page_{url.split('/')[-1].replace('#', '_')}_with_table.html"
-        filename_without_table = f"page_{url.split('/')[-1].replace('#', '_')}_without_table.html"
+        # Generate unique filenames with Run ID
+        page_suffix = url.split('/')[-1].replace('#', '_')
+        filename_with_table = f"page_{page_suffix}_{run_id}_with_table.html"
+        filename_without_table = f"page_{page_suffix}_{run_id}_without_table.html"
         
         # Save HTML files
         save_html_file(data["html_content_with_table"], scraped_dir, filename_with_table)
@@ -288,17 +290,17 @@ def main(base_url, book_number, start_page, end_page):
         results.append(data)
     
     # Combine HTML files with table data
-    combined_html_with_table = combine_html_with_table(scraped_dir, combined_dir)
+    combined_html_with_table = combine_html_with_table(scraped_dir, combined_dir, run_id)
     
     # Combine HTML files without table data
-    combined_html_without_table = combine_html_without_table(scraped_dir, combined_dir)
+    combined_html_without_table = combine_html_without_table(scraped_dir, combined_dir, run_id)
     
     # Convert the new combined HTML (without table data) to DOCX
-    output_docx = os.path.join(combined_dir, "output_without_table.docx")
+    output_docx = os.path.join(combined_dir, f"scraped output_{run_id}.docx")
     html_to_docx(combined_html_without_table, output_docx)
     
     # Convert the new combined HTML (without table data) to DOC
-    output_doc = os.path.join(combined_dir, "output_without_table.doc")
+    output_doc = os.path.join(combined_dir, f"scraped output_{run_id}.doc")
     html_to_doc(combined_html_without_table, output_doc)
     
     # Output JSON result
