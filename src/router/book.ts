@@ -14,5 +14,6 @@ router.get("/",authenticateUser, new BookController().getAllBooks);
 router.get("/:bookId",authenticateUser, new BookController().getBookById);
 router.put("/:bookId",authenticateUser,authorizeRoles(["Super Admin"]), new BookController().update);
 router.delete("/:bookId",authenticateUser,authorizeRoles(["Super Admin"]), new BookController().delete);
+router.get("/count/count-books", new BookController().countBooks);
 
 export default router

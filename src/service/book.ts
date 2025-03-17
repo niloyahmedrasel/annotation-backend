@@ -33,4 +33,9 @@ export class BookService {
         if(!book) throw new AppError("Book not deleted",500)
         return book;
     }
+
+    async countBooks():Promise<number> {
+        const count = await bookRepository.countDocuments();
+        return count;
+    }
 }

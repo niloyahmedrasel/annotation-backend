@@ -53,8 +53,8 @@ export class baseRepository<T extends Document>{
         return this.model.deleteOne(filters).exec();
       }
       
-    async countDocuments(filters: {}): Promise<number> {
-        return this.model.countDocuments(filters).exec();
+    async countDocuments(): Promise<number> {
+        return this.model.countDocuments().exec();
     }
 
 }

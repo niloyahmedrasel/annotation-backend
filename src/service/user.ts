@@ -119,5 +119,11 @@ export class UserService {
         return updatedUsers;
       }
 
+      async countUsers(): Promise<number> {
+        const count = await userRepository.countDocuments();
+        return count;
+      }
+
+
       
 }

@@ -1,6 +1,7 @@
 import { Action, Permission } from "../model/interface/permission";
 import { PermissionRepository } from "../repository/permission";
 import { AppError } from "../utils/appError";
+import { PermissionModel } from "../model/permission";
 const permissionRepository = new PermissionRepository();
 export class PermissionService {
     async create(category: string, action: [Action]): Promise<Permission> {
@@ -43,5 +44,24 @@ export class PermissionService {
         if (!permission) throw new AppError("Permission not found", 404);
         return permission;
     }
+
+    async countPermissions(): Promise<number> {
+        const result = await PermissionModel.aggregate([
+            {
+                $project: {
+                    actionCount: { $size: "$action" } 
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    totalActions: { $sum: "$actionCount" } 
+                }
+            }
+        ]);
+    
+        return result.length > 0 ? result[0].totalActions : 0; 
+    }
+    
 
 }

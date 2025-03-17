@@ -81,4 +81,16 @@ export class PermissionController {
             res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
         }
     }
+
+    async countPermissions(req: Request, res: Response): Promise<void> {
+        try{
+            const count = await permissionService.countPermissions();
+            res.status(200).json({message:"Permissions count fetched successfully",count});
+        }catch(error){
+            console.log(error);
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
+            const message = error instanceof AppError ? error.message : "An unexpected error occurred";
+            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
+        }
+    }
 }

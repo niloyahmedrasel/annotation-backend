@@ -12,6 +12,9 @@ router.post("/login",new UserController().login);
 router.post("/grant-permission/:userId",authenticateUser,authorizeRoles(["Super Admin"]),new UserController().grantPermissions);
 router.post("/remove-permission/:userId",authenticateUser,authorizeRoles(["Super Admin"]),new UserController().removePermissions);
 router.put("/:userId",authenticateUser,authorizeRoles(["Super Admin"]),new UserController().update);
+router.get("/count/count-users",new UserController().countUsers);
+
+
 
 
 

@@ -10,5 +10,6 @@ router.get("/:permissionId", authenticateUser, new PermissionController().getPer
 router.put("/:permissionId", authenticateUser, authorizeRoles(["Super Admin"]), new PermissionController().update);
 router.delete("/:permissionId", authenticateUser, authorizeRoles(["Super Admin"]), new PermissionController().delete);
 router.post("/add-action", authenticateUser, authorizeRoles(["Super Admin"]), new PermissionController().addAction);
+router.get("/count/count-permissions", new PermissionController().countPermissions);
 
 export default router
