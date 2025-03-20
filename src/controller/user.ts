@@ -12,7 +12,11 @@ const userService = new UserService()
 export class UserController {
     async create(req:Request,res:Response):Promise<void>{ 
         try{
-            const {name,email,password,role} = req.body;
+            const {name,email,password,confirmPassword,role} = req.body;
+
+            if(password !== confirmPassword){
+                throw new AppError("Passwords do not match",400)
+            }
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(password, saltRounds);
 

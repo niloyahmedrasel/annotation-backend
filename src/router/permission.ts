@@ -11,5 +11,6 @@ router.put("/:permissionId", authenticateUser, authorizeRoles(["Super Admin"]), 
 router.delete("/:permissionId", authenticateUser, authorizeRoles(["Super Admin"]), new PermissionController().delete);
 router.post("/add-action", authenticateUser, authorizeRoles(["Super Admin"]), new PermissionController().addAction);
 router.get("/count/count-permissions", new PermissionController().countPermissions);
+router.post("/create-permission-group", authenticateUser, authorizeRoles(["Super Admin"]), new PermissionController().createCategory);
 
 export default router

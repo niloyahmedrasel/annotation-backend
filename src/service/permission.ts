@@ -10,6 +10,12 @@ export class PermissionService {
         return permission;
     }
 
+    async createCategory(category: string): Promise<Permission> {
+        const permission = await permissionRepository.create({ category });
+        if (!permission) throw new AppError("Permission not created", 500);
+        return permission;
+    }
+
     async getAllPermissions(): Promise<Permission[]> {
         const permissions = await permissionRepository.find({});
         if (!permissions) throw new AppError("Permissions not found", 404);
