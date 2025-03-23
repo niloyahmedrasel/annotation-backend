@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { BookService } from "../service/book";
 import { AppError } from "../utils/appError";
 import { ObjectId } from "mongoose";
+import path from "path";
+import fs from "fs";
 
 const bookService = new BookService();
 export class BookController {
@@ -54,6 +56,29 @@ export class BookController {
             res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
         }
     }
+
+    async getBookFile(req: Request, res: Response):Promise<any> {
+        try {
+            const { id } = req.params; 
+            console.log(id)
+
+            const book = await bookService.getBookById(id);
+
+            const filePath = path.join("public", "upload", `${book.bookFile}`); 
+            
+            console.log(filePath)
+    
+            if (!fs.existsSync(filePath)) {
+                return res.status(404).json({ errorCode: 1003, message: "File not found." });
+            }
+    
+            res.sendFile(path.resolve(filePath)); 
+        } catch (error) {
+            console.error("Error fetching file:", error);
+            res.status(500).json({ errorCode: 500, message: "An unexpected error occurred" });
+        }
+    }
+    
 
     async getAllBooks(req: Request, res: Response):Promise<void> {
         try{

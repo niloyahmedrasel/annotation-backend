@@ -12,6 +12,8 @@ router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
     try {
         const { baseUrl, bookNumber, startPage, endPage } = req.body;
 
+        console.log("Received request to scrape:", baseUrl, bookNumber, startPage, endPage);
+
         if (!baseUrl || !bookNumber || !startPage || !endPage) {
             return res.status(400).json({ error: "Missing required fields: baseUrl, bookNumber, startPage, endPage" });
         }
