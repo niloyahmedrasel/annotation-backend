@@ -3,49 +3,49 @@ import { BookService } from "../service/book";
 import { AppError } from "../utils/appError";
 import { ObjectId } from "mongoose";
 import path from "path";
-import fs from "fs";
+import fs from "fs/promises";
 
 const bookService = new BookService();
 export class BookController {
     async create(req: Request, res: Response): Promise<any> {
         try {
             const { title, author, editor, publisher, type, category } = req.body;
-            const bookCover = req.file?.originalname || (req.files as any)?.bookCover?.[0]?.originalname;
-            const bookFile = req.file?.originalname || (req.files as any)?.bookFile?.[0]?.originalname;
-            const bookFileData = req.file?.buffer || (req.files as any)?.bookFile?.[0]?.buffer;
+            
+            const bookCoverFile = (req.files as any)?.bookCover?.[0];
+            const bookFileFile = (req.files as any)?.bookFile?.[0];
     
-            if (!bookCover) {
+            if (!bookCoverFile) {
                 return res.status(400).json({ errorCode: 1001, message: "Book Cover is required." });
             }
-            if (!bookFile || !bookFileData) {
+            if (!bookFileFile) {
                 return res.status(400).json({ errorCode: 1002, message: "Book File is required." });
             }
     
-            const book = await bookService.create(title, author, editor, publisher, type, category, bookCover, bookFile);
+            const bookFileData = await fs.readFile(bookFileFile.path);
+            const bookCover = bookCoverFile.originalname;
+            const bookFile = bookFileFile.originalname;
+
+            const book = await bookService.create(
+                title, author, editor, publisher, type, category, 
+                bookCover, bookFile 
+            );
     
             if (book) {
                 console.log("Uploading book file to LKP API...");
-    
                 const bookFileBlob = new Blob([bookFileData], { type: 'application/octet-stream' });
-    
                 const formData = new FormData();
-                formData.append('file', bookFileBlob, bookFile); 
+                formData.append('file', bookFileBlob, bookFile);
     
                 const response = await fetch("https://test.pathok.com.bd/upload", {
                     method: 'POST',
                     body: formData,
                 });
     
-                console.log("LKP API Response Status:", response.status);
-    
                 if (!response.ok) {
-                    const errorResponse = await response.text(); 
+                    const errorResponse = await response.text();
                     console.error("LKP API Error:", errorResponse);
-                    throw new Error(`Failed to upload file: ${response.statusText}`);
+                    throw new Error(`Failed to upload book file: ${response.statusText}`);
                 }
-    
-                const responseData = await response.json();
-                console.log("File uploaded successfully:", responseData);
             }
     
             res.status(201).json({ message: "Book created successfully", book });
@@ -67,10 +67,6 @@ export class BookController {
             const filePath = path.join("public", "upload", `${book.bookFile}`); 
             
             console.log(filePath)
-    
-            if (!fs.existsSync(filePath)) {
-                return res.status(404).json({ errorCode: 1003, message: "File not found." });
-            }
     
             res.sendFile(path.resolve(filePath)); 
         } catch (error) {

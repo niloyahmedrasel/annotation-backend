@@ -1,11 +1,21 @@
 import multer from "multer";
 import path from "path";
 import { Request } from "express";
+import fs from "fs";
 
-// Use memory storage to store files as buffers
-const storage = multer.memoryStorage();
+// Configure disk storage to save files locally
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const destPath = path.join(process.cwd(), 'public', 'upload');
+    // Create directory if it doesn't exist
+    fs.mkdirSync(destPath, { recursive: true });
+    cb(null, destPath);
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
 
-// Define the file filter for different file types
 const fileFilter = (req: Request, file: any, cb: any) => {
   const imageTypes = /jpeg|jpg|png|gif/;
   const documentTypes = /pdf|doc|docx/;
@@ -22,10 +32,9 @@ const fileFilter = (req: Request, file: any, cb: any) => {
   }
 };
 
-// Multer instance with memory storage and fileFilter
 const upload = multer({
-  storage: storage,
-  limits: { fileSize: 1024 * 1024 * 5 }, // 5MB limit
+  storage: storage, // Use diskStorage
+  limits: { fileSize: 1024 * 1024 * 5 },
   fileFilter: fileFilter,
 });
 
