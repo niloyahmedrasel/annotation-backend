@@ -60,7 +60,6 @@ router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
                     title: path.basename(combinedFilePath),
                     fileType: path.extname(combinedFilePath),
                     createdAt: new Date(),
-                    author: parsedData.author
                 });
 
                 await newScraperDoc.save();
