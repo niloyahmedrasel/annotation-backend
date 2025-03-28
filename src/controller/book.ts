@@ -68,13 +68,12 @@ export class BookController {
 
             if (!book) {
                 const scrapDocument = await shamelaScrapperRepository.findById(id);
-                    const filePath = path.join("public", "upload", `${scrapDocument?.title}`); 
-                    console.log(filePath)
+                const filePath = path.join("public", "upload", `${scrapDocument?.title}`); 
+                console.log(filePath)
                 return  res.sendFile(path.resolve(filePath)); 
             }
 
             const filePath = path.join("public", "upload", `${book.bookFile}`); 
-            
             console.log(filePath)
     
             res.sendFile(path.resolve(filePath)); 

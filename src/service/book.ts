@@ -16,10 +16,9 @@ export class BookService {
         return books;
     }
 
-    async getBookById(bookId: string):Promise<Book> {
+    async getBookById(bookId: string):Promise<Book | null> {
         const book = await bookRepository.findById(bookId);
-        if(!book) throw new AppError("Book not found",404)
-        return book;
+        return book ? book : null;
     }
 
     async update(bookId: string, title: string, author: string, editor: string, publisher: string, type: string, category: string, bookCover: string, bookFile: string):Promise<Book> {
