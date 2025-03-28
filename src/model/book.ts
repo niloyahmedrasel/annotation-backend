@@ -33,7 +33,12 @@ const bookSchema = new mongoose.Schema<Book>({
     bookFile: {
         type: String,
         required: true
-    }
+    },
+    status: {
+        type: String,
+        default: "In Review",
+        enum: ["In Review", "Published", "Unpublished"]
+    },
     
 }, {
     timestamps: true

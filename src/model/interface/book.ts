@@ -9,4 +9,5 @@ type:string;
 category:string;
 bookCover:string;
 bookFile:string;
+status:string;
 }
