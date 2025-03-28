@@ -4,8 +4,10 @@ import { AppError } from "../utils/appError";
 import { ObjectId } from "mongoose";
 import path from "path";
 import fs from "fs/promises";
+import { ShamelaScrapperRepository } from "../repository/shamelaScrapper";
 
 const bookService = new BookService();
+const shamelaScrapperRepository = new ShamelaScrapperRepository();
 export class BookController {
     async create(req: Request, res: Response): Promise<any> {
         try {
@@ -63,6 +65,13 @@ export class BookController {
             console.log(id)
 
             const book = await bookService.getBookById(id);
+
+            if (!book) {
+                const scrapDocument = await shamelaScrapperRepository.findById(id);
+                    const filePath = path.join("public", "upload", `${scrapDocument?.title}`); 
+                    console.log(filePath)
+                return  res.sendFile(path.resolve(filePath)); 
+            }
 
             const filePath = path.join("public", "upload", `${book.bookFile}`); 
             
