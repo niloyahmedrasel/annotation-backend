@@ -46,6 +46,8 @@ router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
             try {
                 console.log("Python script output:", data);
                 const parsedData = JSON.parse(data);
+
+                console.log("Parsed data:", parsedData);
                 
                 if (parsedData.error) {
                     return res.status(404).json({ error: parsedData.error });
@@ -55,8 +57,10 @@ router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
 
                 // Save file info to the database
                 const newScraperDoc = await shamelaScrapperRepository.create({
-                    fileName: path.basename(combinedFilePath),
+                    title: path.basename(combinedFilePath),
                     fileType: path.extname(combinedFilePath),
+                    createdAt: new Date(),
+                    author: parsedData.author
                 });
 
                 await newScraperDoc.save();
