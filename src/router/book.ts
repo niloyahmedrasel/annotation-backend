@@ -12,7 +12,10 @@ router.post("/",authenticateUser,authorizeRoles(["Super Admin"]),upload.fields([
   ]), new BookController().create);
 router.get("/",authenticateUser, new BookController().getAllBooks);
 router.get("/:bookId",authenticateUser, new BookController().getBookById);
-router.put("/:bookId",authenticateUser,authorizeRoles(["Super Admin"]), new BookController().update);
+router.put("/:bookId",upload.fields([
+  { name: "bookCover", maxCount: 1 },
+  { name: "bookFile", maxCount: 1 },
+]),authenticateUser,authorizeRoles(["Super Admin"]), new BookController().update);
 router.delete("/:bookId",authenticateUser,authorizeRoles(["Super Admin"]), new BookController().delete);
 router.get("/count/count-books", new BookController().countBooks);
 router.get("/book-file/:id",authenticateUser, new BookController().getBookFile);
