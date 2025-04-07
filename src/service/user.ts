@@ -51,6 +51,18 @@ export class UserService {
         return updatedUser;
     }
 
+    async deleteUser(userId:string):Promise<User>{
+        const user = await userRepository.findById(userId);
+        if (!user) {
+          throw new AppError('User not found', 404);
+        }
+        const deletedUser = await userRepository.deleteById(userId);
+        if (!deletedUser) {
+          throw new AppError('User not deleted', 500);
+        }
+        return deletedUser;
+    }
+
     async login(email: string, password: string): Promise<User> {
         if (!email || !password) {
           throw new AppError('Bad Request: Email and password are required', 400);

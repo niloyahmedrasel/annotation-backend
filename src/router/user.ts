@@ -13,6 +13,7 @@ router.post("/grant-permission/:userId",authenticateUser,authorizeRoles(["Super 
 router.post("/remove-permission/:userId",authenticateUser,authorizeRoles(["Super Admin"]),new UserController().removePermissions);
 router.put("/:userId",authenticateUser,authorizeRoles(["Super Admin"]),new UserController().update);
 router.get("/count/count-users",new UserController().countUsers);
+router.delete("/:userId",authenticateUser,authorizeRoles(["Super Admin"]),new UserController().deleteUser);
 
 
 

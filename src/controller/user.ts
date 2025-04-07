@@ -108,6 +108,20 @@ export class UserController {
         }
     }
 
+    async deleteUser(req:Request,res:Response):Promise<void>{
+        try{
+            const userId = req.params.userId
+            const user = await userService.deleteUser(userId)
+            res.status(200).json({message:"User deleted successfully",user});
+
+        }catch(error){
+            console.log(error)
+            const statusCode = error instanceof AppError? error.statusCode : 500;
+            const message = error instanceof AppError? error.message: "An unexpected error occurred";
+            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
+        }
+    }
+
     async removePermissions(req:Request,res:Response):Promise<void>{
         try{
             const userId = req.params.userId
