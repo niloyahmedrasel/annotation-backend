@@ -12,7 +12,7 @@ export async function seed() {
             name: 'superAdmin',
             email: 'superAdmin@gmail.com',
             password: hashedPassword,
-            role: 'superAdmin'
+            role: 'Super Admin'
         });
 
         console.log('Super admin created successfully');
