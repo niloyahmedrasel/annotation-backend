@@ -22,6 +22,22 @@ const scraperSchema = new mongoose.Schema<Scraper>({
     createdAt: {
         type: Date,
         default: Date.now
+    },
+    bookNumber: {
+        type: String,
+        required: true
+    },
+    pageNumber: {
+        type: String,
+        required: true
+    },
+    volume: {
+        type: String,
+        required: true
+    },
+    chapter: {
+        type: String,
+        required: true
     }
 });
 

@@ -22,7 +22,7 @@ color_styles = {
 def generate_urls(base_url, book_number, start_page, end_page):
     """Generates a list of URLs based on the book number and page range."""
     urls = []
-    for page in range(start_page, end_page + 1):
+    for page in range(start_page-1, end_page):
         url = base_url.format(bookNumber=book_number, pageNumber=page)
         urls.append(url)
     return urls

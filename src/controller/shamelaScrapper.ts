@@ -60,7 +60,14 @@ router.post('/scrape', async (req: Request, res: Response): Promise<any> => {
                     title: path.basename(combinedFilePath),
                     fileType: path.extname(combinedFilePath),
                     createdAt: new Date(),
+                    bookNumber:bookNumber,
+                    pageNumber:startPage + '-' + endPage,
+                    volume:parsedData?.scraped_data[0]?.volume_no || '',
+                    chapter:parsedData?.scraped_data[0]?.chapter || ''
+
                 });
+
+                console.log("New document saved:", newScraperDoc);
 
                 await newScraperDoc.save();
 
