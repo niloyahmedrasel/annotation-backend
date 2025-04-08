@@ -9,7 +9,7 @@ const shamelaScrapperSchema = new mongoose.Schema<Scraper>({
     },
     author: {
         type: String,
-        required: true
+        required: false
     },
     fileType: {
         type: String,
