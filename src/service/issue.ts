@@ -23,9 +23,9 @@ export class IssueService {
     }
 
     async update(issueId:string,title:string,bookNumber:string,pageNumber:string,volume:string,chapter:string,tags:[string],issue:string):Promise<Issue> {
-        const generatedIssue = await issueRepository.findOneAndUpdate({_id:issueId},{title,bookNumber,pageNumber,volume,chapter,tags,issue});
-        if(!generatedIssue) throw new Error("Issue not updated");
-        return generatedIssue;
+        const updatedIssue = await issueRepository.findOneAndUpdate({_id:issueId},{title,bookNumber,pageNumber,volume,chapter,tags,issue});
+        if(!updatedIssue) throw new Error("Issue not updated");
+        return updatedIssue;
     }
 
     async delete(issueId:string):Promise<Issue> {

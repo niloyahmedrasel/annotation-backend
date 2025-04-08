@@ -7,8 +7,8 @@ export class IssueController{
     async create(req: Request, res: Response): Promise<void> {
         try{
             const { title,bookNumber,pageNumber,volume,chapter,tags,issue } = req.body;
-            const book = await issueService.create(title,bookNumber,pageNumber,volume,chapter,tags,issue);
-            res.status(201).json({ message: "Issue created successfully", book });
+            const createdIssue = await issueService.create(title,bookNumber,pageNumber,volume,chapter,tags,issue);
+            res.status(201).json({ message: "Issue created successfully", createdIssue });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
@@ -46,8 +46,8 @@ export class IssueController{
         try{
             const issueId =  req.params.issueId;
             const { title,bookNumber,pageNumber,volume,chapter,tags,issue } = req.body;
-            const book = await issueService.update(issueId,title,bookNumber,pageNumber,volume,chapter,tags,issue);
-            res.status(200).json({ message: "Issue updated successfully", book });
+            const updatedIssue = await issueService.update(issueId,title,bookNumber,pageNumber,volume,chapter,tags,issue);
+            res.status(200).json({ message: "Issue updated successfully", updatedIssue });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
