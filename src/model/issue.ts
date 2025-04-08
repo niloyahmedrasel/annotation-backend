@@ -6,38 +6,35 @@ const issueSchema = new mongoose.Schema<Issue>({
         type: String,
         required: true
     },
-    description: {
+    bookNumber:{
         type: String,
         required: true
     },
-    bookId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Book',
+    pageNumber: {
+        type: String,
         required: true
     },
-    tagId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Tag',
+    volume: {
+        type: String,
         required: true
     },
-    scholarId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Scholar',
-        required: true
-    },
-    categoryId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
+    chapter: {
+        type: String,
         required: true
     },
     status: {
         type: String,
-        enum: ['published', 'under review', 'draft'],
-        default: 'draft'
+        enum: ["Annotated", "Not Annotated"],
+        default: "Not Annotated",
+        required: true
     },
-    date: {
-        type: Date,
-        default: Date.now
+    tags: {
+        type: [String],
+        required: true
+    },
+    issue: {
+        type: String,
+        required: true
     }
 }, {
     timestamps: true
