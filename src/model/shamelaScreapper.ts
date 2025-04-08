@@ -46,4 +46,4 @@ const shamelaScrapperSchema = new mongoose.Schema<Scraper>({
 }
 );
 
-export const ScraperModel = mongoose.model<Scraper>("Scrapper", shamelaScrapperSchema);
+export const ScraperModel = mongoose.model<Scraper>("Scraper", shamelaScrapperSchema);
