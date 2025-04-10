@@ -31,9 +31,9 @@ export class IssueController{
 
     async getIssueById(req: Request, res: Response): Promise<void> {
         try{
-            const bookId = req.params.bookId;
-            const book = await issueService.getIssueById(bookId);
-            res.status(200).json({ message: "Issue fetched successfully", book });
+            const issueId = req.params.issueId;
+            const issue = await issueService.getIssueById(issueId);
+            res.status(200).json({ message: "Issue fetched successfully", issue });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
