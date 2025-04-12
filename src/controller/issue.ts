@@ -74,19 +74,12 @@ export class IssueController{
 
         try {
             const issue = await issueService.getIssueById(issueId);
-
-            const csrfRes = await fetch("https://studio.pathok.com.bd/api/csrf-token", {
-            credentials: 'include'
-            });
-            const csrfToken = csrfRes.headers.get('X-CSRFToken');
-
         
             const projectRes = await fetch("https://studio.pathok.com.bd/api/projects", {
             method: "POST",
             headers: {
                 "Authorization": "Token 31e16e9198a48b1135e4552ee5843c574d202c1b",
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrfToken || ''
+                "Content-Type": "application/json"
             },
             credentials: 'include',
             body: JSON.stringify({
