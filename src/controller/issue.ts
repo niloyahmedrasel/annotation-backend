@@ -69,6 +69,60 @@ export class IssueController{
         }
     }
 
+    async annotateIssue(req: Request, res: Response): Promise<void> {
+        const { issueId } = req.body;
 
-    
+        try {
+            const issue = await issueService.getIssueById(issueId);
+
+            const csrfRes = await fetch("https://studio.pathok.com.bd/api/csrf-token", {
+            credentials: 'include'
+            });
+            const csrfToken = csrfRes.headers.get('X-CSRFToken');
+
+        
+            const projectRes = await fetch("https://studio.pathok.com.bd/api/projects", {
+            method: "POST",
+            headers: {
+                "Authorization": "Token 31e16e9198a48b1135e4552ee5843c574d202c1b",
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken || ''
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                title: issue.title,
+                description: "Project created from app",
+                label_config: `...` 
+            })
+        });
+      
+          const project = await projectRes.json();
+      
+         
+          await fetch(`https://studio.pathok.com.bd/api/projects/${project.id}/import`, {
+            method: "POST",
+            headers: {
+              Authorization: "Token 31e16e9198a48b1135e4552ee5843c574d202c1b",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify([
+              {
+                text: issue.issue,
+                issueId: issue._id,
+              },
+            ]),
+          });
+      
+          res.status(200).json({ projectId: project.id });
+      
+        } catch (err) {
+          console.error(err);
+          res.status(500).json({ error: "Something went wrong" });
+        }
+    }
+
+    getCSRFToken(req: Request, res: Response): void {
+        const csrfToken = (req as any).csrfToken();
+        res.status(200).json({ csrfToken });
+    }
 }

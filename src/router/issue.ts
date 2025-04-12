@@ -9,5 +9,7 @@ router.get("/",authenticateUser, new IssueController().getAllIssues);
 router.get("/:issueId",authenticateUser, new IssueController().getIssueById);
 router.put("/:issueId",authenticateUser,authorizeRoles(["Super Admin"]), new IssueController().update);
 router.delete("/:issueId",authenticateUser,authorizeRoles(["Super Admin"]), new IssueController().delete);
+router.post("/annotate-issue",authenticateUser, new IssueController().annotateIssue);
+router.get("/get-csrf-token", new IssueController().getCSRFToken);
 
 export default router;
