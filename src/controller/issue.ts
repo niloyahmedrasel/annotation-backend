@@ -71,30 +71,45 @@ export class IssueController{
 
     async annotateIssue(req: Request, res: Response): Promise<void> {
         const { issueId } = req.body;
-
+    
         try {
-            const issue = await issueService.getIssueById(issueId);
-        
-            const projectRes = await fetch("https://studio.pathok.com.bd/api/projects", {
+ 
+          const issue = await issueService.getIssueById(issueId);
+    
+          const projectRes = await fetch("https://studio.pathok.com.bd/api/projects", {
             method: "POST",
             headers: {
-                "Authorization": "Token 31e16e9198a48b1135e4552ee5843c574d202c1b",
-                "Content-Type": "application/json"
+              "Authorization": "Token 31e16e9198a48b1135e4552ee5843c574d202c1b",
+              "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                title: issue.title,
-                description: "Project created from app",
-                label_config: `...` 
+              title: issue.title,
+              description: "Project created from app",
+              label_config: `
+                <View>
+                  <Text name="text" value="$text"/>
+                  <Choices name="label" toName="text" choice="single">
+                    <Choice value="Important"/>
+                    <Choice value="Not Important"/>
+                  </Choices>
+                </View>
+              `
             })
-        });
-      
-          const project = await projectRes.json();
-      
-         
-          await fetch(`https://studio.pathok.com.bd/api/projects/${project.id}/import`, {
+          });
+    
+          console.log("Project creation response status:", projectRes.status);
+          const projectJson = await projectRes.json();
+          console.log("Project JSON response:", projectJson);
+    
+          if (!projectJson.id) {
+            res.status(500).json({ error: "Failed to create project" });
+            return;
+          }
+    
+          const importRes = await fetch(`https://studio.pathok.com.bd/api/projects/${projectJson.id}/import`, {
             method: "POST",
             headers: {
-              Authorization: "Token 31e16e9198a48b1135e4552ee5843c574d202c1b",
+              "Authorization": "Token 31e16e9198a48b1135e4552ee5843c574d202c1b",
               "Content-Type": "application/json",
             },
             body: JSON.stringify([
@@ -104,14 +119,19 @@ export class IssueController{
               },
             ]),
           });
-      
-          res.status(200).json({ projectId: project.id });
-      
+    
+          console.log("Import response status:", importRes.status);
+          if (!importRes.ok) {
+            res.status(500).json({ error: "Failed to import data to project" });
+            return;
+          }
+          res.status(200).json({ projectId: projectJson.id });
+    
         } catch (err) {
           console.error(err);
           res.status(500).json({ error: "Something went wrong" });
         }
-    }
+      }
 
     getCSRFToken(req: Request, res: Response): void {
         res.setHeader('X-CSRFToken', (req as any).csrfToken());
