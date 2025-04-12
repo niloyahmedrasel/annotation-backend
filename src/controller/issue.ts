@@ -122,7 +122,7 @@ export class IssueController{
     }
 
     getCSRFToken(req: Request, res: Response): void {
-        const csrfToken = (req as any).csrfToken();
-        res.status(200).json({ csrfToken });
+        res.setHeader('X-CSRFToken', (req as any).csrfToken());
+        res.status(200).send();
     }
 }
