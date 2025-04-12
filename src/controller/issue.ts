@@ -81,7 +81,6 @@ export class IssueController{
                 "Authorization": "Token 31e16e9198a48b1135e4552ee5843c574d202c1b",
                 "Content-Type": "application/json"
             },
-            credentials: 'include',
             body: JSON.stringify({
                 title: issue.title,
                 description: "Project created from app",
