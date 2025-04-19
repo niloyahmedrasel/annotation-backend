@@ -78,7 +78,7 @@ export class IssueController{
 
           console.log("Issue:", issue);
     
-          const projectRes = await fetch("http://localhost:8080/api/projects", {
+          const projectRes = await fetch("https://studio.pathok.com.bd/api/projects", {
             method: "POST",
             headers: {
               "Authorization": "Token 685298f62992e1d89d8283b273247c6f9d7e7a0a",
@@ -108,7 +108,7 @@ export class IssueController{
             return;
           }
     
-          const importRes = await fetch(`http://localhost:8080/api/projects/${projectJson.id}/import`, {
+          const importRes = await fetch(`https://studio.pathok.com.bd/api/projects/${projectJson.id}/import`, {
             method: "POST",
             headers: {
               "Authorization": "Token 685298f62992e1d89d8283b273247c6f9d7e7a0a",
