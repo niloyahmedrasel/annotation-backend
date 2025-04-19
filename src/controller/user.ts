@@ -137,6 +137,20 @@ export class UserController {
         }
     }
 
+    async getPermissionByUserId(req:Request,res:Response):Promise<void>{
+        const userId = req.params.userId
+        try{
+            const permissions = await userService.getPermissionByUserId(userId)
+            res.status(200).json({message:"Permissions fetched successfully",permissions});
+
+        }catch(error){
+            console.log(error)
+            const statusCode = error instanceof AppError? error.statusCode : 500;
+            const message = error instanceof AppError? error.message: "An unexpected error occurred";
+            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message }); 
+        }
+    }
+
     async countUsers(req:Request,res:Response):Promise<void>{ 
         try{
             const users = await userService.countUsers()

@@ -75,11 +75,13 @@ export class IssueController{
         try {
  
           const issue = await issueService.getIssueById(issueId);
+
+          console.log("Issue:", issue);
     
-          const projectRes = await fetch("https://studio.pathok.com.bd/api/projects", {
+          const projectRes = await fetch("http://localhost:8080/api/projects", {
             method: "POST",
             headers: {
-              "Authorization": "Token 31e16e9198a48b1135e4552ee5843c574d202c1b",
+              "Authorization": "Token 685298f62992e1d89d8283b273247c6f9d7e7a0a",
               "Content-Type": "application/json"
             },
             body: JSON.stringify({
@@ -106,19 +108,22 @@ export class IssueController{
             return;
           }
     
-          const importRes = await fetch(`https://studio.pathok.com.bd/api/projects/${projectJson.id}/import`, {
+          const importRes = await fetch(`http://localhost:8080/api/projects/${projectJson.id}/import`, {
             method: "POST",
             headers: {
-              "Authorization": "Token 31e16e9198a48b1135e4552ee5843c574d202c1b",
+              "Authorization": "Token 685298f62992e1d89d8283b273247c6f9d7e7a0a",
               "Content-Type": "application/json",
             },
             body: JSON.stringify([
               {
-                text: issue.issue,
-                issueId: issue._id,
-              },
+                data: {
+                  text: issue.issue
+                }
+              }
             ]),
-          });
+          });                
+          
+          console.log("Import response:", importRes);
     
           console.log("Import response status:", importRes.status);
           if (!importRes.ok) {

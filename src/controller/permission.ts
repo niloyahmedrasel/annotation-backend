@@ -42,11 +42,24 @@ export class PermissionController {
         }
     }
 
+
     async getPermissionById(req: Request, res: Response): Promise<void> {
         try{
             const permissionId = req.params.permissionId;
             const permission = await permissionService.getPermissionById(permissionId);
             res.status(200).json({message:"Permission fetched successfully",permission});
+        }catch(error){
+            console.log(error);
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
+            const message = error instanceof AppError ? error.message : "An unexpected error occurred";
+            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
+        }
+    }
+
+    async getPermissionsByRole(req: Request, res: Response): Promise<void> {
+        try{
+            const permissions = await permissionService.getPermissionsByRole();
+            res.status(200).json({message:"Permissions fetched successfully",permissions});
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;

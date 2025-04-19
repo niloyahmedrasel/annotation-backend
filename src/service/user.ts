@@ -131,6 +131,14 @@ export class UserService {
         return updatedUsers;
       }
 
+      async getPermissionByUserId(userId: string): Promise<any> {
+        const user = await userRepository.findById(userId);
+        if (!user) {
+          throw new AppError('User not found', 404);
+        }
+        return user.permissions;
+      }
+
       async countUsers(): Promise<number> {
         const count = await userRepository.countDocuments();
         return count;

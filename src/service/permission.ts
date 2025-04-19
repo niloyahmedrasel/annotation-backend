@@ -2,7 +2,9 @@ import { Action, Permission } from "../model/interface/permission";
 import { PermissionRepository } from "../repository/permission";
 import { AppError } from "../utils/appError";
 import { PermissionModel } from "../model/permission";
+import { UserRepository } from "../repository/user";
 const permissionRepository = new PermissionRepository();
+const userRepository = new UserRepository();
 export class PermissionService {
     async create(category: string, action: [Action]): Promise<Permission> {
         const permission = await permissionRepository.create({ category, action });
@@ -22,11 +24,41 @@ export class PermissionService {
         return permissions;
     }
 
+
+
     async getPermissionById(permissionId: string): Promise<Permission> {
         const permission = await permissionRepository.findById(permissionId);
         if (!permission) throw new AppError("Permission not found", 404);
         return permission;
     }
+
+    async getPermissionsByRole(): Promise<Record<string, string[]>> {
+        
+        const roles = {
+          superAdmin: 'Super Admin',
+          annotator: 'Annotator',
+          docOrganizer: 'Doc Organizer',
+          reviewer: 'Reviewer'
+        };
+      
+        const result: Record<string, string[]> = {
+          superAdmin: [],
+          annotator: [],
+          docOrganizer: [],
+          reviewer: []
+        };
+      
+
+        for (const key in roles) {
+          const users = await userRepository.find({ role: roles[key as keyof typeof roles] });
+      
+          const permissionIds = users.flatMap(user => user.permissions.map((id: any) => id.toString()));
+          result[key] = [...new Set(permissionIds)];
+        }
+      
+        return result;
+      }
+      
 
     async update(permissionId: string, category: string, action: [Action]): Promise<Permission> {
         const permission = await permissionRepository.findById(permissionId);

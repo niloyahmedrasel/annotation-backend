@@ -5,6 +5,7 @@ import { authenticateUser } from "../middleware/authenticateUser";
 import { authorizeRoles } from "../middleware/authorizeUserRole";
 
 router.post("/", authenticateUser, authorizeRoles(["Super Admin"]), new PermissionController().create);
+router.get("/get-permissions", authenticateUser, new PermissionController().getPermissionsByRole);
 router.get("/", authenticateUser, new PermissionController().getAllPermissions);
 router.get("/:permissionId", authenticateUser, new PermissionController().getPermissionById);
 router.put("/:permissionId", authenticateUser, authorizeRoles(["Super Admin"]), new PermissionController().update);
