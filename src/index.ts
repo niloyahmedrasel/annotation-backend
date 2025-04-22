@@ -10,6 +10,11 @@ import issueRouter from "./router/issue";
 import permissionRouter from "./router/permission";
 import docEditorRouter from "./router/docEditor";
 import scrapRouter from "./controller/shamelaScrapper"
+import bookcategoryRouter from "./router/bookCategory";
+import editorRouter from "./router/editor";
+import publisherRouter from "./router/publisher";
+import authorRouter from "./router/author";
+import tagRouter from "./router/tag";
 import path from "path";
 import bodyParser from "body-parser";
 import { seed } from "./seeder";
@@ -38,6 +43,11 @@ app.use("/api/issue", issueRouter);
 app.use("/api/permission", permissionRouter);
 app.use("/api/docEditor", docEditorRouter);
 app.use("/api", scrapRouter);
+app.use("/api/bookCategory", bookcategoryRouter);
+app.use("/api/editor", editorRouter);
+app.use("/api/publisher", publisherRouter);
+app.use("/api/author", authorRouter);   
+app.use("/api/tag", tagRouter);
 
 app.get("/", (req, res) => {
     res.send("hello world!")

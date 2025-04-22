@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
 import { AppError } from "../utils/appError";
-import { BookTypeService } from "../service/bookTypeService";
+import { BookCategpryService } from "../service/bookCategory";
 
-const bookTypeService = new BookTypeService();
-export class BookTypeController{
+const bookCategoryService = new BookCategpryService();
+export class BookCategoryController {
     async create(req: Request, res: Response): Promise<void> {
         try{
             const {title} = req.body;
-            const bookType = await bookTypeService.create(title);
-            res.status(201).json({message:"Book type created successfully",bookType});
+            const bookCategory = await bookCategoryService.create(title);
+            res.status(201).json({message:"Book category created successfully",bookCategory});
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
@@ -17,10 +17,10 @@ export class BookTypeController{
         }
     }
 
-    async getAllBookTypes(req: Request, res: Response): Promise<void> {
+    async getAllBookCategories(req: Request, res: Response): Promise<void> {
         try{
-            const bookTypes = await bookTypeService.getAllBookTypes();
-            res.status(200).json({message:"Book types fetched successfully",bookTypes});
+            const bookCategories = await bookCategoryService.getAllBookCategories();
+            res.status(200).json({ message: "Book categories fetched successfully", bookCategories });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
@@ -29,25 +29,11 @@ export class BookTypeController{
         }
     }
 
-    async getBookTypeById(req: Request, res: Response): Promise<void> {
+    async getBookCategoryById(req: Request, res: Response): Promise<void> {
         try{
-            const bookTypeId = req.params.bookTypeId;
-            const bookType = await bookTypeService.getBookTypeById(bookTypeId);
-            res.status(200).json({message:"Book type fetched successfully",bookType});
-        }catch(error){
-            console.log(error);
-            const statusCode = error instanceof AppError ? error.statusCode : 500;
-            const message = error instanceof AppError ? error.message : "An unexpected error occurred";
-            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
-        }
-    }
-
-    async update(req: Request, res: Response): Promise<void> {
-        try{
-            const bookTypeId = req.params.bookTypeId;
-            const {title} = req.body;
-            const bookType = await bookTypeService.update(bookTypeId,title);
-            res.status(200).json({message:"Book type updated successfully",bookType});
+            const bookCategoryId = req.params.bookCategoryId;
+            const bookCategory = await bookCategoryService.getBookCategoryById(bookCategoryId);
+            res.status(200).json({ message: "Book category fetched successfully", bookCategory });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
@@ -58,9 +44,23 @@ export class BookTypeController{
 
     async delete(req: Request, res: Response): Promise<void> {
         try{
-            const bookTypeId = req.params.bookTypeId;
-            const bookType = await bookTypeService.delete(bookTypeId);
-            res.status(200).json({message:"Book type deleted successfully",bookType});
+            const bookCategoryId = req.params.bookCategoryId;
+            const bookCategory = await bookCategoryService.delete(bookCategoryId);
+            res.status(200).json({ message: "Book category deleted successfully", bookCategory });
+        }catch(error){
+            console.log(error);
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
+            const message = error instanceof AppError ? error.message : "An unexpected error occurred";
+            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
+        }
+    }
+
+    async update(req: Request, res: Response): Promise<void> {
+        try{
+            const bookCategoryId =  req.params.bookCategoryId;
+            const { title } = req.body;
+            const updatedBookCategory = await bookCategoryService.update(bookCategoryId,title);
+            res.status(200).json({ message: "Book category updated successfully", updatedBookCategory });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;

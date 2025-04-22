@@ -4,8 +4,8 @@ import { AppError } from "../utils/appError";
 
 const bookTypeRepository = new BookTypeRepository();
 export class BookTypeService {
-    async create(title: string, description: string): Promise<BookType> {
-        const bookType = await bookTypeRepository.create({ type: title, description: description }); 
+    async create(title: string): Promise<BookType> {
+        const bookType = await bookTypeRepository.create({ title }); 
         if(!bookType) throw new AppError("Book type not created",500);
         return bookType;
     }
@@ -22,8 +22,8 @@ export class BookTypeService {
         return bookType;
     }
 
-    async update(bookTypeId: string, title: string, description: string): Promise<BookType> {
-        const bookType = await bookTypeRepository.findOneAndUpdate({ _id: bookTypeId }, { type: title, description: description });
+    async update(bookTypeId: string, title: string): Promise<BookType> {
+        const bookType = await bookTypeRepository.findOneAndUpdate({ _id: bookTypeId }, { title } );
         if(!bookType) throw new AppError("Book type not updated",500);
         return bookType;
     }

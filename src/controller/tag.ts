@@ -1,14 +1,15 @@
-import { Request, Response } from "express";
-import { AppError } from "../utils/appError";
-import { BookTypeService } from "../service/bookTypeService";
+import {Request,Response} from "express";
+import {AppError} from "../utils/appError";
 
-const bookTypeService = new BookTypeService();
-export class BookTypeController{
-    async create(req: Request, res: Response): Promise<void> {
+import {TagService} from "../service/tag";
+
+const tagService = new TagService();
+export class TagController{
+    async create(req:Request,res:Response):Promise<void>{
         try{
             const {title} = req.body;
-            const bookType = await bookTypeService.create(title);
-            res.status(201).json({message:"Book type created successfully",bookType});
+            const tag = await tagService.create(title);
+            res.status(201).json({message:"Tag created successfully",tag});
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
@@ -17,10 +18,10 @@ export class BookTypeController{
         }
     }
 
-    async getAllBookTypes(req: Request, res: Response): Promise<void> {
+    async getAllTags(req:Request,res:Response):Promise<void>{
         try{
-            const bookTypes = await bookTypeService.getAllBookTypes();
-            res.status(200).json({message:"Book types fetched successfully",bookTypes});
+            const tags = await tagService.getAllTags();
+            res.status(200).json({ message: "Tags fetched successfully", tags });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
@@ -29,11 +30,11 @@ export class BookTypeController{
         }
     }
 
-    async getBookTypeById(req: Request, res: Response): Promise<void> {
+    async getTagById(req:Request,res:Response):Promise<void>{
         try{
-            const bookTypeId = req.params.bookTypeId;
-            const bookType = await bookTypeService.getBookTypeById(bookTypeId);
-            res.status(200).json({message:"Book type fetched successfully",bookType});
+            const tagId = req.params.tagId;
+            const tag = await tagService.getTagById(tagId);
+            res.status(200).json({ message: "Tag fetched successfully", tag });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
@@ -42,12 +43,11 @@ export class BookTypeController{
         }
     }
 
-    async update(req: Request, res: Response): Promise<void> {
+    async delete(req:Request,res:Response):Promise<void>{
         try{
-            const bookTypeId = req.params.bookTypeId;
-            const {title} = req.body;
-            const bookType = await bookTypeService.update(bookTypeId,title);
-            res.status(200).json({message:"Book type updated successfully",bookType});
+            const tagId = req.params.tagId;
+            const tag = await tagService.delete(tagId);
+            res.status(200).json({ message: "Tag deleted successfully", tag });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
@@ -56,11 +56,12 @@ export class BookTypeController{
         }
     }
 
-    async delete(req: Request, res: Response): Promise<void> {
+    async update(req:Request,res:Response):Promise<void>{
         try{
-            const bookTypeId = req.params.bookTypeId;
-            const bookType = await bookTypeService.delete(bookTypeId);
-            res.status(200).json({message:"Book type deleted successfully",bookType});
+            const tagId =  req.params.tagId;
+            const { title } = req.body;
+            const updatedTag = await tagService.update(tagId,title);
+            res.status(200).json({ message: "Tag updated successfully", updatedTag });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
@@ -68,4 +69,5 @@ export class BookTypeController{
             res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
         }
     }
+
 }

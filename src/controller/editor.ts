@@ -1,39 +1,15 @@
 import { Request, Response } from "express";
 import { AppError } from "../utils/appError";
-import { BookTypeService } from "../service/bookTypeService";
 
-const bookTypeService = new BookTypeService();
-export class BookTypeController{
+import { EditorService } from "../service/editor";
+
+const editorService = new EditorService();
+export class EditorController {
     async create(req: Request, res: Response): Promise<void> {
         try{
             const {title} = req.body;
-            const bookType = await bookTypeService.create(title);
-            res.status(201).json({message:"Book type created successfully",bookType});
-        }catch(error){
-            console.log(error);
-            const statusCode = error instanceof AppError ? error.statusCode : 500;
-            const message = error instanceof AppError ? error.message : "An unexpected error occurred";
-            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
-        }
-    }
-
-    async getAllBookTypes(req: Request, res: Response): Promise<void> {
-        try{
-            const bookTypes = await bookTypeService.getAllBookTypes();
-            res.status(200).json({message:"Book types fetched successfully",bookTypes});
-        }catch(error){
-            console.log(error);
-            const statusCode = error instanceof AppError ? error.statusCode : 500;
-            const message = error instanceof AppError ? error.message : "An unexpected error occurred";
-            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
-        }
-    }
-
-    async getBookTypeById(req: Request, res: Response): Promise<void> {
-        try{
-            const bookTypeId = req.params.bookTypeId;
-            const bookType = await bookTypeService.getBookTypeById(bookTypeId);
-            res.status(200).json({message:"Book type fetched successfully",bookType});
+            const editor = await editorService.create(title);
+            res.status(201).json({message:"Editor created successfully",editor});
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
@@ -44,10 +20,10 @@ export class BookTypeController{
 
     async update(req: Request, res: Response): Promise<void> {
         try{
-            const bookTypeId = req.params.bookTypeId;
-            const {title} = req.body;
-            const bookType = await bookTypeService.update(bookTypeId,title);
-            res.status(200).json({message:"Book type updated successfully",bookType});
+            const editorId =  req.params.editorId;
+            const { title } = req.body;
+            const updatedEditor = await editorService.update(editorId,title);
+            res.status(200).json({ message: "Editor updated successfully", updatedEditor });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
@@ -58,9 +34,34 @@ export class BookTypeController{
 
     async delete(req: Request, res: Response): Promise<void> {
         try{
-            const bookTypeId = req.params.bookTypeId;
-            const bookType = await bookTypeService.delete(bookTypeId);
-            res.status(200).json({message:"Book type deleted successfully",bookType});
+            const editorId = req.params.editorId;
+            const editor = await editorService.delete(editorId);
+            res.status(200).json({ message: "Editor deleted successfully", editor });
+        }catch(error){
+            console.log(error);
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
+            const message = error instanceof AppError ? error.message : "An unexpected error occurred";
+            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
+        }
+    }
+
+    async getAllEditors(req: Request, res: Response): Promise<void> {
+        try{
+            const editors = await editorService.getAllEditors();
+            res.status(200).json({ message: "Editors fetched successfully", editors });
+        }catch(error){
+            console.log(error);
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
+            const message = error instanceof AppError ? error.message : "An unexpected error occurred";
+            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
+        }
+    }
+
+    async getEditorById(req: Request, res: Response): Promise<void> {
+        try{
+            const editorId = req.params.editorId;
+            const editor = await editorService.getEditorById(editorId);
+            res.status(200).json({ message: "Editor fetched successfully", editor });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;

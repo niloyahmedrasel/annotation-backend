@@ -2,11 +2,7 @@ import mongoose from "mongoose";
 import { BookType } from "./interface/bookType";
 
 const bookTypeSchema = new mongoose.Schema<BookType>({
-    type: {
-        type: String,
-        required: true
-    },
-    description: {
+    title: {
         type: String,
         required: true
     }
