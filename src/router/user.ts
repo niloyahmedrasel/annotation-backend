@@ -4,8 +4,9 @@ import { UserController } from "../controller/user";
 import { authenticateUser } from "../middleware/authenticateUser";
 import { authorizeRoles } from "../middleware/authorizeUserRole";
 import upload from "../middleware/uploadFiles";
+import { checkUserPermission } from "../middleware/checkUserPermission";
 
-router.post("/", new UserController().create);
+router.post("/",checkUserPermission("Create user"), new UserController().create);
 router.get("/",authenticateUser,authorizeRoles(["Super Admin"]),new UserController().getAllUsers);
 router.get("/:userId",authenticateUser,authorizeRoles(["Super Admin"]),new UserController().getUserById);
 router.post("/login",new UserController().login);

@@ -9,7 +9,7 @@ import bookTypeRouter from "./router/bookType";
 import issueRouter from "./router/issue";
 import permissionRouter from "./router/permission";
 import docEditorRouter from "./router/docEditor";
-import scrapRouter from "./controller/shamelaScrapper"
+import scrapRouter from "./router/shamelaScraper";
 import bookcategoryRouter from "./router/bookCategory";
 import editorRouter from "./router/editor";
 import publisherRouter from "./router/publisher";
