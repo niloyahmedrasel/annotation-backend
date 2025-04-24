@@ -144,6 +144,30 @@ export class UserService {
         return count;
       }
 
+      async frezeUser(userId: string): Promise<User> {
+        const user = await userRepository.findById(userId);
+        if (!user) {
+          throw new AppError('User not found', 404);
+        }
+        const updatedUser = await userRepository.findOneAndUpdate({ _id: userId }, { isfreeze: true });
+        if (!updatedUser) {
+          throw new AppError('User not updated', 500);
+        }
+        return updatedUser;
+      }
+
+      async unfrezeUser(userId: string): Promise<User> {
+        const user = await userRepository.findById(userId);
+        if (!user) {
+          throw new AppError('User not found', 404);
+        } 
+        const updatedUser = await userRepository.findOneAndUpdate({ _id: userId }, { isfreeze: false });
+        if (!updatedUser) {
+          throw new AppError('User not updated', 500);
+        }
+        return updatedUser;
+      }
+
 
       
 }

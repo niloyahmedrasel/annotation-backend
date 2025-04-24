@@ -164,6 +164,34 @@ export class UserController {
         }
     }
 
+    async frezeUser(req:Request,res:Response):Promise<void>{
+        try{
+            const userId = req.params.userId
+            const user = await userService.frezeUser(userId)
+            res.status(200).json({message:"User frezed successfully",user});
+
+        }catch(error){
+            console.log(error)
+            const statusCode = error instanceof AppError? error.statusCode : 500;
+            const message = error instanceof AppError? error.message: "An unexpected error occurred";
+            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
+        }
+    }
+
+    async unfrezeUser(req:Request,res:Response):Promise<void>{
+        try{
+            const userId = req.params.userId
+            const user = await userService.unfrezeUser(userId)
+            res.status(200).json({message:"User unfrezed successfully",user});
+
+        }catch(error){
+            console.log(error)
+            const statusCode = error instanceof AppError? error.statusCode : 500;
+            const message = error instanceof AppError? error.message: "An unexpected error occurred";
+            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
+        }
+    }
+
     
 
     
