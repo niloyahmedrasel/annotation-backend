@@ -2,6 +2,8 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { UserRepository } from "../repository/user";
+import dotenv from "dotenv";
+dotenv.config();
 const userRepository = new UserRepository()
 interface JwtPayload {
   id: string;
@@ -22,7 +24,7 @@ export const authenticateUser = async (
   }
 
   try {
-    const decoded = jwt.verify(token, "secret") as JwtPayload;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
     (req as any).user = decoded;
     const user = await userRepository.findById(decoded.id);
 

@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import { BookRepository } from "../repository/book";
 import jwt from "jsonwebtoken";
-
+import dotenv from "dotenv";
+dotenv.config();
 const bookRepository = new BookRepository();
 
-// Replace with your JWT secret (retrieved from ONLYOFFICE)
-const JWT_SECRET = "Bf4CnTTGnX7Swht1ZolvlpPtcyBzEpr0";
+
+const ONLY_OFFICE_JWT_SECRET = process.env.ONLY_OFFICE_JWT_SECRET || '';
 
 export class DocEditorController {
     async openDocEditor(req: Request, res: Response): Promise<any> {
@@ -27,12 +28,10 @@ export class DocEditorController {
 
             const fileUrl = `https://lkp.pathok.com.bd/upload/${fileName}`;
             const onlyOfficeServer = 'https://office.pathok.com.bd';
-
-            // Generate JWT token
             const payload = {
                 document: {
-                    fileType: "docx", // Change based on the file type
-                    key: bookId, // Unique document key
+                    fileType: "docx", 
+                    key: bookId, 
                     title: fileName,
                     permissions: {
                         edit: true,
@@ -41,23 +40,15 @@ export class DocEditorController {
                 },
             };
 
-            // Change from 1 hour to 24 hours
-            const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
-
-            // Construct the editor URL (without callbackUrl)
-            // Update the editor URL construction
-          // Add proper JWT header instead of URL parameter
+            const token = jwt.sign(payload,ONLY_OFFICE_JWT_SECRET, { expiresIn: "24h" });
             const editorUrl = `${onlyOfficeServer}/edit?file=${encodeURIComponent(fileUrl)}`;
 
-            // In your frontend implementation, send the token via Authorization header:
-            // Example using fetch API:
             fetch(editorUrl, {
               headers: {
                 Authorization: `Bearer ${token}`
               }
             })
 
-            // Return the editor URL and the JWT token
             res.json({ editorUrl, token });
         } catch (error) {
             console.error("Error fetching book or generating editor URL:", error);

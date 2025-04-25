@@ -1,11 +1,15 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
-const MONGO_URI = 'mongodb+srv://annotation:EPlwRya5HGW4gc8n@cluster0.58knn8l.mongodb.net/annotationDB?retryWrites=true&w=majority&appName=annotation';
-
+dotenv.config();
+const uri = process.env.MONGO_URI;
+if (!uri) {
+  throw new Error("MONGO_URI is not defined in .env");
+}
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(MONGO_URI, {
+    await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 5000, 
     });
     console.log('MongoDB connected successfully!');

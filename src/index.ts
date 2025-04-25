@@ -18,6 +18,8 @@ import tagRouter from "./router/tag";
 import path from "path";
 import bodyParser from "body-parser";
 import { seed } from "./seeder";
+import dotenv from "dotenv"
+dotenv.config();
 
 const port = process.env.PORT || 5000;
 
