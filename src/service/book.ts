@@ -6,6 +6,10 @@ import { AppError } from "../utils/appError";
 const bookRepository = new BookRepository();
 export class BookService {
     async create(title: string, author: string, editor: string, publisher: string, type: string, category: string, bookCover: string, bookFile: string):Promise<Book> {
+        const existingBook = await bookRepository.findOne({ title });
+        if (existingBook) {
+            throw new AppError("Book already exists", 400);
+        }
         const book = await bookRepository.create({ title, author, editor, publisher, type, category, bookCover, bookFile });
         if(!book) throw new AppError("Book not created",500)
         return book;

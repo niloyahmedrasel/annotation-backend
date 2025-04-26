@@ -1,4 +1,4 @@
-// src/middleware/authenticateUser.ts
+
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { UserRepository } from "../repository/user";
@@ -17,7 +17,7 @@ export const authenticateUser = async (
   next: NextFunction
 ): Promise<void> => {
   const token = req.headers.authorization?.split(" ")[1];
-
+  console.log(token)
   if (!token) {
     res.status(401).json({ message: "Unauthorized" });
     return;
