@@ -265,7 +265,7 @@ def main(base_url, book_number, start_page, end_page):
     run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     
     # Create output directories
-    scraped_dir = "scraped_data"
+    scraped_dir = f"{book_number}_{start_page}-{end_page}"
     combined_dir = "combined_output"
     
     # Generate URLs dynamically
