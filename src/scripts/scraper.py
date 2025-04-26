@@ -265,7 +265,7 @@ def main(base_url, book_number, start_page, end_page):
     run_id = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     
     # Create output directories
-    scraped_dir = f"{book_number}_{start_page}-{end_page}"
+    scraped_dir = "scraped_output"
     combined_dir = "combined_output"
     
     # Generate URLs dynamically
@@ -292,15 +292,16 @@ def main(base_url, book_number, start_page, end_page):
     # Combine HTML files with table data
     combined_html_with_table = combine_html_with_table(scraped_dir, combined_dir, run_id)
     
+    output_filename = f"book_{book_number}_pages_{start_page}-{end_page}_{run_id}"
     # Combine HTML files without table data
     combined_html_without_table = combine_html_without_table(scraped_dir, combined_dir, run_id)
     
     # Convert the new combined HTML (without table data) to DOCX
-    output_docx = os.path.join(combined_dir, f"scraped output_{run_id}.docx")
+    output_docx = os.path.join(combined_dir, f"{output_filename}.docx")
     html_to_docx(combined_html_without_table, output_docx)
     
     # Convert the new combined HTML (without table data) to DOC
-    output_doc = os.path.join(combined_dir, f"scraped output_{run_id}.doc")
+    output_doc = os.path.join(combined_dir, f"{output_filename}.doc")
     html_to_doc(combined_html_without_table, output_doc)
     
     # Output JSON result
