@@ -35,6 +35,10 @@ const issueSchema = new mongoose.Schema<Issue>({
     issue: {
         type: String,
         required: true
+    },
+    createdBy: {
+        type: String,
+        required: false
     }
 }, {
     timestamps: true

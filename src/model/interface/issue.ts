@@ -9,4 +9,5 @@ export interface Issue extends Document {
   chapter: string;
   tags: [string];
   issue: string;
+  createdBy:string;
 }

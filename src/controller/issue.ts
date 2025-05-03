@@ -6,8 +6,8 @@ const issueService = new IssueService()
 export class IssueController{
     async create(req: Request, res: Response): Promise<void> {
         try{
-            const { title,bookNumber,pageNumber,volume,chapter,tags,issue } = req.body;
-            const createdIssue = await issueService.create(title,bookNumber,pageNumber,volume,chapter,tags,issue);
+            const { title,bookNumber,pageNumber,volume,chapter,tags,issue,createdBy } = req.body;
+            const createdIssue = await issueService.create(title,bookNumber,pageNumber,volume,chapter,tags,issue,createdBy);
             res.status(201).json({ message: "Issue created successfully", createdIssue });
         }catch(error){
             console.log(error);
@@ -45,8 +45,8 @@ export class IssueController{
     async update(req: Request, res: Response): Promise<void> {
         try{
             const issueId =  req.params.issueId;
-            const { title,bookNumber,pageNumber,volume,chapter,tags,issue } = req.body;
-            const updatedIssue = await issueService.update(issueId,title,bookNumber,pageNumber,volume,chapter,tags,issue);
+            const { title,bookNumber,pageNumber,volume,chapter,tags,issue,createdBy } = req.body;
+            const updatedIssue = await issueService.update(issueId,title,bookNumber,pageNumber,volume,chapter,tags,issue,createdBy);
             res.status(200).json({ message: "Issue updated successfully", updatedIssue });
         }catch(error){
             console.log(error);

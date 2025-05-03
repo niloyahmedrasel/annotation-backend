@@ -4,8 +4,8 @@ import { IssueRepository } from "../repository/issue";
 
 const issueRepository = new IssueRepository()
 export class IssueService {
-    async create(title:string,bookNumber:string,pageNumber:string,volume:string,chapter:string,tags:[string],issue:string):Promise<Issue> {
-        const generatedIssue = await issueRepository.create({title,bookNumber,pageNumber,volume,chapter,tags,issue});
+    async create(title:string,bookNumber:string,pageNumber:string,volume:string,chapter:string,tags:[string],issue:string,createdBy:string):Promise<Issue> {
+        const generatedIssue = await issueRepository.create({title,bookNumber,pageNumber,volume,chapter,tags,issue,createdBy});
         if(!generatedIssue) throw new Error("Issue not created");
         return generatedIssue;
     }
@@ -22,8 +22,8 @@ export class IssueService {
         return issue;
     }
 
-    async update(issueId:string,title:string,bookNumber:string,pageNumber:string,volume:string,chapter:string,tags:[string],issue:string):Promise<Issue> {
-        const updatedIssue = await issueRepository.findOneAndUpdate({_id:issueId},{title,bookNumber,pageNumber,volume,chapter,tags,issue});
+    async update(issueId:string,title:string,bookNumber:string,pageNumber:string,volume:string,chapter:string,tags:[string],issue:string,createdBy:string):Promise<Issue> {
+        const updatedIssue = await issueRepository.findOneAndUpdate({_id:issueId},{title,bookNumber,pageNumber,volume,chapter,tags,issue,createdBy});
         if(!updatedIssue) throw new Error("Issue not updated");
         return updatedIssue;
     }
