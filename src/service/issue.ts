@@ -33,4 +33,9 @@ export class IssueService {
         if(!issue) throw new Error("Issue not deleted");
         return issue;
     }
+
+    async countIssues():Promise<number> {
+        const count = await issueRepository.countDocuments();
+        return count;
+    }
 }

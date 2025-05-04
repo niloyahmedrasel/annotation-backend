@@ -41,6 +41,7 @@ export class IssueController{
             res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
         }
     }
+    
 
     async update(req: Request, res: Response): Promise<void> {
         try{
@@ -61,6 +62,18 @@ export class IssueController{
             const issueId = req.params.issueId;
             const issue = await issueService.delete(issueId);
             res.status(200).json({ message: "Issue deleted successfully", issue });
+        }catch(error){
+            console.log(error);
+            const statusCode = error instanceof AppError ? error.statusCode : 500;
+            const message = error instanceof AppError ? error.message : "An unexpected error occurred";
+            res.status(statusCode).json({ errorCode: statusCode === 500 ? 500 : statusCode, message });
+        }
+    }
+
+    async countIssues(req: Request, res: Response): Promise<void> {
+        try{
+            const count = await issueService.countIssues();
+            res.status(200).json({ message: "Issues count fetched successfully", count });
         }catch(error){
             console.log(error);
             const statusCode = error instanceof AppError ? error.statusCode : 500;
@@ -142,4 +155,6 @@ export class IssueController{
         res.setHeader('X-CSRFToken', (req as any).csrfToken());
         res.status(200).send();
     }
+
+    
 }

@@ -12,5 +12,6 @@ router.put("/:issueId",authenticateUser,authorizeRoles(["Super Admin"]),checkUse
 router.delete("/:issueId",authenticateUser,authorizeRoles(["Super Admin"]), new IssueController().delete);
 router.post("/annotate-issue",authenticateUser,checkUserPermission("Create annotation within a scope"), new IssueController().annotateIssue);
 router.get("/get-csrf-token", new IssueController().getCSRFToken);
+router.get("/count/count-issues", new IssueController().countIssues);
 
 export default router;
